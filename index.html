@@ -3,15 +3,57 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Irregular Verbs — тренажёр</title>
+<title>English Trainer — Irregular Verbs + Modules</title>
 <style>
 :root{color-scheme:light;--bg:#f5f7fb;--card:#fff;--ink:#182230;--muted:#687386;--line:#dce2ec;--accent:#3457d5;--good:#147a45;--bad:#b42318}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;min-height:100vh;display:grid;place-items:center;padding:20px;transition:background .2s,color .2s}
-main{width:min(100%,650px)}.top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:16px}.brand{font-weight:800;font-size:18px}.tag{color:var(--muted);font-size:13px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;min-height:100vh;display:grid;place-items:center;padding:20px;transition:background .2s,color .2s}
+main{width:min(100%,720px)}
+.top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.brand{font-weight:800;font-size:18px}
+.tag{color:var(--muted);font-size:13px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:clamp(20px,5vw,34px);box-shadow:0 12px 35px #25365b0d;transition:background .2s,border-color .2s}
-.progressline{height:7px;background:#e9edf5;border-radius:99px;overflow:hidden;margin:12px 0 24px;transition:background .2s}.progress{height:100%;width:0;background:var(--accent);transition:width .2s}
-.meta{display:flex;justify-content:space-between;color:var(--muted);font-size:13px;gap:12px}.prompt{font-size:clamp(26px,5vw,36px);font-weight:800;line-height:1.2;text-align:center;margin:22px 0 8px}.hint{text-align:center;color:var(--muted);font-size:14px;margin-bottom:24px}
-label{display:block;font-weight:650;margin-bottom:8px}input{width:100%;font:inherit;padding:14px 15px;border:1px solid #cbd3e1;border-radius:12px;outline:none;background:var(--card);color:var(--ink);transition:background .2s,border-color .2s}input:focus{border-color:var(--accent);box-shadow:0 0 0 3px #3457d51c}button{font:inherit;font-weight:700;border:0;border-radius:12px;padding:13px 16px;cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}.primary{background:var(--accent);color:white;width:100%;margin-top:12px}.secondary{background:#edf0f7;color:var(--ink);transition:background .2s}.row{display:flex;gap:10px;margin-top:12px}.row button{flex:1}.feedback{padding:14px;border-radius:12px;margin-top:16px}.feedback.good{background:#eaf7ef;color:var(--good)}.feedback.bad{background:#fff0ef;color:var(--bad)}.answer{color:var(--ink);font-weight:800;margin-top:4px}.stats{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:14px;margin-top:20px}.settings{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}.settings button{font-size:13px;padding:8px 11px}.settings .selected{background:#e4e9ff;color:#233eb2}.hidden{display:none!important}.finish{text-align:center}.finish h2{font-size:30px}.small{font-size:13px;color:var(--muted);text-align:center;margin-top:16px}.kbd{font-size:12px;background:#edf0f7;padding:2px 6px;border-radius:5px}
+.tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.tabs button{background:#edf0f7;color:var(--ink);border:0;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer;font-size:14px;transition:background .2s}
+.tabs button.active{background:var(--accent);color:#fff}
+.searchWrap{position:relative;margin-bottom:16px}
+.searchWrap input{width:100%;font:inherit;padding:12px 14px;border:1px solid #cbd3e1;border-radius:12px;outline:none;background:var(--card);color:var(--ink)}
+.searchWrap input:focus{border-color:var(--accent);box-shadow:0 0 0 3px #3457d51c}
+.searchResults{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 35px #25365b1a;max-height:320px;overflow-y:auto;z-index:50}
+.searchResults .item{padding:10px 14px;border-bottom:1px solid var(--line);cursor:pointer;font-size:14px}
+.searchResults .item:last-child{border-bottom:0}
+.searchResults .item:hover{background:#edf0f7}
+.searchResults .item b{color:var(--accent)}
+.searchResults .empty{padding:12px 14px;color:var(--muted);font-size:13px}
+.progressline{height:7px;background:#e9edf5;border-radius:99px;overflow:hidden;margin:12px 0 24px}
+.progress{height:100%;width:0;background:var(--accent);transition:width .2s}
+.meta{display:flex;justify-content:space-between;color:var(--muted);font-size:13px;gap:12px;flex-wrap:wrap}
+.prompt{font-size:clamp(24px,4.5vw,34px);font-weight:800;line-height:1.2;text-align:center;margin:22px 0 8px}
+.hint{text-align:center;color:var(--muted);font-size:14px;margin-bottom:24px}
+label{display:block;font-weight:650;margin-bottom:8px}
+input[type=text]{width:100%;font:inherit;padding:14px 15px;border:1px solid #cbd3e1;border-radius:12px;outline:none;background:var(--card);color:var(--ink);transition:background .2s,border-color .2s}
+input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px #3457d51c}
+button{font:inherit;font-weight:700;border:0;border-radius:12px;padding:13px 16px;cursor:pointer}
+button:disabled{opacity:.45;cursor:not-allowed}
+.primary{background:var(--accent);color:white;width:100%;margin-top:12px}
+.secondary{background:#edf0f7;color:var(--ink);transition:background .2s}
+.row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.row button{flex:1;min-width:140px}
+.feedback{padding:14px;border-radius:12px;margin-top:16px}
+.feedback.good{background:#eaf7ef;color:var(--good)}
+.feedback.bad{background:#fff0ef;color:var(--bad)}
+.answer{color:var(--ink);font-weight:800;margin-top:4px}
+.stats{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:14px;margin-top:20px}
+.settings{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.settings button{font-size:13px;padding:8px 11px}
+.settings .selected{background:#e4e9ff;color:#233eb2}
+.hidden{display:none!important}
+.finish{text-align:center}
+.finish h2{font-size:30px}
+.small{font-size:13px;color:var(--muted);text-align:center;margin-top:16px}
+.modules{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 16px}
+.modules label{display:flex;align-items:center;gap:6px;background:#edf0f7;padding:8px 12px;border-radius:12px;cursor:pointer;font-size:14px;font-weight:600}
+.modules input{accent-color:var(--accent)}
 
 /* Кнопка темы */
 #themeBtn{position:fixed;top:16px;right:16px;z-index:999;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:18px;cursor:pointer;box-shadow:0 4px 12px #0000001a;transition:background .2s,color .2s,border-color .2s}
@@ -19,28 +61,45 @@ label{display:block;font-weight:650;margin-bottom:8px}input{width:100%;font:inhe
 
 /* Тёмная тема */
 body.dark{--bg:#0f1420;--card:#1a2130;--ink:#e8edf7;--muted:#8b96ab;--line:#2a3346;--accent:#5b7cff;--good:#3fbf7f;--bad:#ff6b5e;color-scheme:dark}
-body.dark input{background:#121a28;color:var(--ink);border-color:#2a3346}
-body.dark .secondary{background:#232c3e;color:var(--ink)}
+body.dark input[type=text]{background:#121a28;color:var(--ink);border-color:#2a3346}
+body.dark .secondary,body.dark .tabs button,body.dark .modules label{background:#232c3e;color:var(--ink)}
 body.dark .settings .selected{background:#2a3a6b;color:#b9c8ff}
 body.dark .feedback.good{background:#12261c}
 body.dark .feedback.bad{background:#2a1614}
 body.dark .progressline{background:#232c3e}
-body.dark .kbd{background:#232c3e}
 body.dark .card{box-shadow:0 12px 35px #00000055}
+body.dark .searchResults .item:hover{background:#232c3e}
 </style>
 </head>
 <body>
 <button id="themeBtn" title="Сменить тему">🌙</button>
 <main>
-  <div class="top"><div class="brand">📚 Irregular Verbs</div><div class="tag">Тренажёр на 3 формы</div></div>
-  <section class="card" id="quiz">
+  <div class="top">
+    <div class="brand">📚 English Trainer</div>
+    <div class="tag">Irregular Verbs + Modules</div>
+  </div>
+
+  <!-- Вкладки -->
+  <div class="tabs">
+    <button id="tabVerbs" class="active">Неправильные глаголы</button>
+    <button id="tabWords">Слова по модулям</button>
+  </div>
+
+  <!-- Поиск -->
+  <div class="searchWrap">
+    <input type="text" id="searchInput" placeholder="Поиск: введи слово на русском или английском..." autocomplete="off">
+    <div class="searchResults hidden" id="searchResults"></div>
+  </div>
+
+  <!-- КВИЗ: ГЛАГОЛЫ -->
+  <section class="card" id="quizVerbs">
     <div class="meta"><span id="roundLabel">Раунд 1</span><span id="count">Вопрос 1 из 56</span></div>
     <div class="progressline"><div class="progress" id="progress"></div></div>
     <div class="prompt" id="prompt">быть, находиться</div>
     <div class="hint">Введи 3 формы на английском: Infinitive · Past Simple · Past Participle</div>
     <form id="answerForm">
       <label for="answer">Твой ответ</label>
-      <input id="answer" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="be — was/were — been" required>
+      <input type="text" id="answer" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="be — was/were — been" required>
       <button class="primary" id="checkBtn" type="submit">Проверить</button>
     </form>
     <div id="feedback" class="feedback hidden" aria-live="polite"></div>
@@ -52,15 +111,45 @@ body.dark .card{box-shadow:0 12px 35px #00000055}
       <button class="secondary" id="restartBtn">Начать заново</button>
     </div>
   </section>
+
+  <!-- КВИЗ: СЛОВА -->
+  <section class="card hidden" id="quizWords">
+    <div class="meta"><span id="roundLabelW">Раунд 1</span><span id="countW">Вопрос 1</span></div>
+    <div class="progressline"><div class="progress" id="progressW"></div></div>
+
+    <div class="modules" id="moduleList"></div>
+
+    <div class="prompt" id="promptW">—</div>
+    <div class="hint" id="hintW">Введи перевод на английском</div>
+    <form id="answerFormW">
+      <label for="answerW">Твой ответ</label>
+      <input type="text" id="answerW" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="например: relationship" required>
+      <button class="primary" id="checkBtnW" type="submit">Проверить</button>
+    </form>
+    <div id="feedbackW" class="feedback hidden" aria-live="polite"></div>
+    <div class="row hidden" id="nextRowW"><button class="primary" id="nextBtnW">Следующее слово →</button></div>
+    <div class="stats"><span>Верно: <b id="scoreW">0</b></span><span>Серия: <b id="streakW">0</b> 🔥</span></div>
+    <div class="settings">
+      <button class="secondary" id="startWordsBtn">Начать / Обновить</button>
+      <button class="secondary" id="retryWrongBtnW">Повторить ошибки</button>
+    </div>
+  </section>
+
+  <!-- ФИНИШ -->
   <section class="card finish hidden" id="finish">
     <div style="font-size:44px">🏆</div><h2>Раунд завершён!</h2>
     <p id="finalScore"></p><p id="finalText"></p>
     <button class="primary" id="againBtn">Ещё один круг</button>
     <button class="secondary" id="wrongAgainBtn" style="width:100%;margin-top:10px">Повторить ошибки</button>
   </section>
-  <p class="small">Подсказка: можно разделять формы пробелами, запятыми или тире. Прогресс сохраняется в этом браузере.</p>
+
+  <p class="small">Подсказка: разделяй формы пробелами, запятыми или тире. Прогресс сохраняется в браузере.</p>
 </main>
+
 <script>
+/* ============ ДАННЫЕ ============ */
+
+// Неправильные глаголы: [перевод, inf, past, pp]
 const verbs = [
 ["быть, находиться","be","was/were","been"],
 ["становиться, делаться","become","became","become"],
@@ -120,29 +209,218 @@ const verbs = [
 ["бежать, управлять","run","ran","run"],
 ["говорить, сказать","say","said","said"]
 ];
+
+// Слова по модулям: { module: [ [ru, en, ...доп.значения], ... ] }
+// В квизе показываем ru -> en (2-3 значения можно через /)
+const wordModules = {
+  "Module 1 — Relationships": [
+    ["отношения","relationship","relationships"],
+    ["дружба","friendship"],
+    ["друг","friend","mate","buddy"],
+    ["подруга","friend","girlfriend"],
+    ["член семьи","family member","relative"],
+    ["родственник","relative","relation"],
+    ["родители","parents"],
+    ["мать","mother","mom","mum"],
+    ["отец","father","dad"],
+    ["брат","brother"],
+    ["сестра","sister"],
+    ["бабушка","grandmother","grandma","granny"],
+    ["дедушка","grandfather","grandpa"],
+    ["тётя","aunt"],
+    ["дядя","uncle"],
+    ["двоюродный брат / сестра","cousin"],
+    ["племянник","nephew"],
+    ["племянница","niece"],
+    ["муж","husband"],
+    ["жена","wife"],
+    ["парень (бойфренд)","boyfriend"],
+    ["девушка (герлфренд)","girlfriend"],
+    ["жених / невеста","fiancé / fiancée"],
+    ["сосед","neighbour","neighbor"],
+    ["одноклассник","classmate"],
+    ["коллега","colleague","co-worker"],
+    ["близкий друг","close friend","best friend"],
+    ["знакомый","acquaintance"],
+    ["свидание","date"],
+    ["отношения на расстоянии","long-distance relationship"],
+    ["поддерживать связь","keep in touch"],
+    ["ладить","get on well","get along"],
+    ["ссориться","argue","quarrel"],
+    ["мириться","make up"],
+    ["доверять","trust"],
+    ["поддерживать","support"],
+    ["уважать","respect"],
+    ["заботиться","care for","look after"],
+    ["влюбляться","fall in love"],
+    ["жениться / выходить замуж","marry","get married"],
+    ["разводиться","divorce","get divorced"],
+    ["встречаться","date","go out"],
+    ["общаться","communicate","socialize"],
+    ["разговаривать по телефону","talk on the phone"],
+    ["переписываться","text each other","message"],
+    ["созваниваться по видео","video call","Skype"],
+    ["социальная сеть","social network","social media"],
+    ["общаться в интернете","chat online"],
+    ["смысл жизни","meaning of life"],
+    ["чувство юмора","sense of humour"],
+    ["характер","character","personality"],
+    ["внешность","appearance","looks"],
+    ["общие интересы","common interests","shared interests"],
+    ["вкус (предпочтение)","taste"],
+    ["поддерживать отношения","maintain relationships"],
+    ["доверие","trust"],
+    ["уважение","respect"],
+    ["любовь","love"],
+    ["забота","care"],
+    ["ссора","argument","quarrel"],
+    ["развод","divorce"],
+    ["свадьба","wedding"],
+    ["помолвка","engagement"],
+    ["родство","kinship","relation"]
+  ]
+};
+
+/* ============ ХЕЛПЕРЫ ============ */
 const $ = id => document.getElementById(id);
+const norm = s => s.toLowerCase().trim().replace(/[—–,;]+/g," ").replace(/\s+/g," ");
+const accepted = s => s.split("/").map(x => x.trim().toLowerCase());
+const parseAnswer = s => s.toLowerCase().trim().split(/[\s,;—–-]+/).filter(Boolean);
+
+/* ============ СОСТОЯНИЕ ============ */
+let mode = "verbs"; // "verbs" | "words"
+
+// Верб-квиз
 let order=[], pos=0, score=0, streak=0, wrong=[], checked=false, shuffle=true;
-function norm(s){return s.toLowerCase().trim().replace(/[—–,;]+/g," ").replace(/\s+/g," ")}
-function accepted(s){return s.split("/").map(x=>x.trim().toLowerCase())}
-function parseAnswer(s){return s.toLowerCase().trim().split(/[\s,;—–-]+/).filter(Boolean)}
-function start(list=null){
-  order=list ? [...list] : verbs.map((_,i)=>i);
+
+// Вордс-квиз
+let wOrder=[], wPos=0, wScore=0, wStreak=0, wWrong=[], wChecked=false;
+let wPool = []; // текущий пул слов
+
+/* ============ ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ============ */
+function switchMode(m){
+  mode = m;
+  $("tabVerbs").classList.toggle("active", m==="verbs");
+  $("tabWords").classList.toggle("active", m==="words");
+  $("quizVerbs").classList.toggle("hidden", m!=="verbs");
+  $("quizWords").classList.toggle("hidden", m!=="words");
+  $("finish").classList.add("hidden");
+}
+
+$("tabVerbs").addEventListener("click", () => { switchMode("verbs"); startVerbs(); });
+$("tabWords").addEventListener("click", () => { switchMode("words"); renderModules(); });
+
+/* ============ ПОИСК ============ */
+const searchInput = $("searchInput");
+const searchResults = $("searchResults");
+
+function buildSearchIndex(){
+  const idx = [];
+  // Глаголы
+  verbs.forEach((v, i) => {
+    idx.push({ type:"verb", idx:i, ru:v[0], en:[v[1],v[2],v[3]].join(" / ").toLowerCase() });
+  });
+  // Слова
+  Object.entries(wordModules).forEach(([mod, list]) => {
+    list.forEach((w, i) => {
+      idx.push({ type:"word", mod, idx:i, ru:w[0], en:w.slice(1).join(" / ").toLowerCase() });
+    });
+  });
+  return idx;
+}
+const searchIndex = buildSearchIndex();
+
+function doSearch(q){
+  q = q.toLowerCase().trim();
+  if(!q){ searchResults.classList.add("hidden"); searchResults.innerHTML=""; return; }
+  // Совпадения: по русскому, по английскому, по первым буквам
+  const matches = searchIndex.filter(it =>
+    it.ru.toLowerCase().includes(q) || it.en.includes(q)
+  ).slice(0, 20);
+
+  if(!matches.length){
+    searchResults.innerHTML = `<div class="empty">Ничего не найдено</div>`;
+    searchResults.classList.remove("hidden");
+    return;
+  }
+  searchResults.innerHTML = matches.map(m => {
+    const ru = highlight(m.ru, q);
+    const en = highlight(m.en, q);
+    return `<div class="item" data-type="${m.type}" data-idx="${m.idx}" data-mod="${m.mod||''}">
+      <b>${ru}</b> — ${en}
+      <span style="color:var(--muted);font-size:12px"> · ${m.type==="verb"?"глагол":m.mod}</span>
+    </div>`;
+  }).join("");
+  searchResults.classList.remove("hidden");
+}
+
+function highlight(text, q){
+  if(!q) return text;
+  const i = text.toLowerCase().indexOf(q);
+  if(i === -1) return text;
+  return text.slice(0,i) + "<mark style='background:#ffe58a;color:#000;border-radius:3px;padding:0 2px'>" + text.slice(i,i+q.length) + "</mark>" + text.slice(i+q.length);
+}
+
+searchInput.addEventListener("input", e => doSearch(e.target.value));
+searchInput.addEventListener("focus", e => { if(e.target.value) doSearch(e.target.value); });
+document.addEventListener("click", e => {
+  if(!e.target.closest(".searchWrap")) searchResults.classList.add("hidden");
+});
+searchResults.addEventListener("click", e => {
+  const item = e.target.closest(".item");
+  if(!item) return;
+  const type = item.dataset.type;
+  const idx = Number(item.dataset.idx);
+  const mod = item.dataset.mod;
+  if(type === "verb"){
+    // Открываем вкладку глаголов и начинаем с этого глагола
+    switchMode("verbs");
+    order = [idx]; pos = 0; score = 0; streak = 0; wrong = []; checked = false;
+    $("quizVerbs").classList.remove("hidden");
+    $("finish").classList.add("hidden");
+    updateStats(); renderVerbs();
+  } else {
+    // Открываем вкладку слов и начинаем с этого слова
+    switchMode("words");
+    renderModules();
+    // Снимаем все галочки, ставим только нужный модуль
+    document.querySelectorAll("#moduleList input").forEach(cb => {
+      cb.checked = (cb.value === mod);
+    });
+    wPool = [ wordModules[mod][idx] ];
+    wOrder = [0]; wPos = 0; wScore = 0; wStreak = 0; wWrong = []; wChecked = false;
+    $("quizWords").classList.remove("hidden");
+    $("finish").classList.add("hidden");
+    renderWords();
+  }
+  searchResults.classList.add("hidden");
+  searchInput.value = "";
+});
+
+/* ============ КВИЗ ГЛАГОЛОВ ============ */
+function startVerbs(list=null){
+  order = list ? [...list] : verbs.map((_,i)=>i);
   if(shuffle && !list) order.sort(()=>Math.random()-.5);
   pos=0;score=0;streak=0;wrong=[];checked=false;
-  $("quiz").classList.remove("hidden");$("finish").classList.add("hidden");
-  updateStats();render();save();
+  $("quizVerbs").classList.remove("hidden");
+  $("quizWords").classList.add("hidden");
+  $("finish").classList.add("hidden");
+  updateStats();renderVerbs();saveVerbs();
 }
-function render(){
-  if(pos>=order.length){finish();return}
+
+function renderVerbs(){
+  if(pos>=order.length){finishVerbs();return}
   const v=verbs[order[pos]];
-  $("prompt").textContent=v[0];$("count").textContent=`Вопрос ${pos+1} из ${order.length}`;
+  $("prompt").textContent=v[0];
+  $("count").textContent=`Вопрос ${pos+1} из ${order.length}`;
   $("roundLabel").textContent=`Раунд ${Number(localStorage.getItem("round")||0)+1}`;
   $("progress").style.width=`${pos/order.length*100}%`;
   $("answer").value="";$("answer").disabled=false;$("checkBtn").disabled=false;
   $("feedback").className="feedback hidden";$("nextRow").classList.add("hidden");
   checked=false;$("answer").focus();
 }
-function check(e){
+
+function checkVerbs(e){
   e.preventDefault();if(checked)return;
   const v=verbs[order[pos]], p=parseAnswer($("answer").value);
   const ok=p.length===3 && p.every((x,i)=>accepted(v[i+1]).some(a=>a===x));
@@ -153,42 +431,109 @@ function check(e){
   if(ok){score++;streak++}else{streak=0;wrong.push(order[pos])}
   updateStats();$("progress").style.width=`${(pos+1)/order.length*100}%`;
   $("nextBtn").textContent=pos===order.length-1?"Завершить раунд":"Следующий глагол →";
-  $("nextRow").classList.remove("hidden");save();
+  $("nextRow").classList.remove("hidden");saveVerbs();
 }
-function next(){pos++;if(pos>=order.length)finish();else render()}
+
+function nextVerb(){pos++;if(pos>=order.length)finishVerbs();else renderVerbs()}
+
 function updateStats(){$("score").textContent=score;$("streak").textContent=streak}
-function finish(){
-  $("quiz").classList.add("hidden");$("finish").classList.remove("hidden");
+
+function finishVerbs(){
+  $("quizVerbs").classList.add("hidden");$("finish").classList.remove("hidden");
   $("finalScore").textContent=`Результат: ${score} из ${order.length} (${Math.round(score/order.length*100)}%).`;
   $("finalText").textContent=wrong.length?`Ошибок: ${wrong.length}. Можно пройти их отдельно или начать новый круг.`:"Без ошибок — идеально!";
-  $("progress").style.width="100%";
   localStorage.setItem("round",String(Number(localStorage.getItem("round")||0)+1));
-  save();
+  saveVerbs();
 }
-function save(){
+
+function saveVerbs(){
   try{localStorage.setItem("irregularQuizState",JSON.stringify({order,pos,score,streak,wrong,shuffle}))}catch(e){}
 }
-$("answerForm").addEventListener("submit",check);
-$("nextBtn").addEventListener("click",next);
-$("restartBtn").addEventListener("click",()=>start());
-$("againBtn").addEventListener("click",()=>start());
-$("retryWrongBtn").addEventListener("click",()=>wrong.length?start(wrong):alert("Пока нет ошибок — отлично!"));
-$("wrongAgainBtn").addEventListener("click",()=>wrong.length?start(wrong):start());
-$("shuffleBtn").addEventListener("click",()=>{shuffle=!shuffle;$("shuffleBtn").classList.toggle("selected",shuffle);$("shuffleBtn").textContent=`🔀 Случайный порядок: ${shuffle?"вкл.":"выкл."}`;save()});
 
-// Переключение темы
-const themeBtn = $("themeBtn");
-function applyTheme(dark){
-  document.body.classList.toggle("dark", dark);
-  themeBtn.textContent = dark ? "☀️" : "🌙";
-  localStorage.setItem("theme", dark ? "dark" : "light");
+/* ============ КВИЗ СЛОВ ============ */
+function renderModules(){
+  const box = $("moduleList");
+  box.innerHTML = Object.keys(wordModules).map(m =>
+    `<label><input type="checkbox" value="${m}" checked> ${m}</label>`
+  ).join("");
 }
-applyTheme(localStorage.getItem("theme") === "dark");
-themeBtn.addEventListener("click", () => {
-  applyTheme(!document.body.classList.contains("dark"));
+
+function getSelectedWords(){
+  const checked = [...document.querySelectorAll("#moduleList input:checked")].map(cb => cb.value);
+  const pool = [];
+  checked.forEach(m => {
+    wordModules[m].forEach(w => pool.push(w));
+  });
+  return pool;
+}
+
+function startWords(list=null){
+  wPool = list ? [...list] : getSelectedWords();
+  if(!wPool.length){ alert("Выбери хотя бы один модуль"); return; }
+  wOrder = wPool.map((_,i)=>i);
+  wOrder.sort(()=>Math.random()-.5);
+  wPos=0;wScore=0;wStreak=0;wWrong=[];wChecked=false;
+  $("quizWords").classList.remove("hidden");
+  $("quizVerbs").classList.add("hidden");
+  $("finish").classList.add("hidden");
+  renderWords();
+}
+
+function renderWords(){
+  if(wPos>=wOrder.length){finishWords();return}
+  const w = wPool[wOrder[wPos]];
+  $("promptW").textContent = w[0]; // русский
+  $("countW").textContent = `Вопрос ${wPos+1} из ${wOrder.length}`;
+  $("roundLabelW").textContent = `Раунд ${Number(localStorage.getItem("roundW")||0)+1}`;
+  $("progressW").style.width = `${wPos/wOrder.length*100}%`;
+  $("answerW").value="";$("answerW").disabled=false;$("checkBtnW").disabled=false;
+  $("feedbackW").className="feedback hidden";$("nextRowW").classList.add("hidden");
+  wChecked=false;$("answerW").focus();
+}
+
+function checkWords(e){
+  e.preventDefault();if(wChecked)return;
+  const w = wPool[wOrder[wPos]];
+  const correct = w.slice(1).map(x => x.toLowerCase()); // все правильные варианты
+  const user = $("answerW").value.toLowerCase().trim();
+  const ok = correct.some(c => c === user || c.split("/").map(s=>s.trim()).includes(user));
+  wChecked=true;$("answerW").disabled=true;$("checkBtnW").disabled=true;
+  $("feedbackW").className="feedback "+(ok?"good":"bad");
+  $("feedbackW").innerHTML=(ok?"Верно! 🎉":"Почти! Правильный ответ:")+
+    `<div class="answer">${w.slice(1).join(" / ")}</div>`;
+  if(ok){wScore++;wStreak++}else{wStreak=0;wWrong.push(wOrder[wPos])}
+  $("scoreW").textContent=wScore;$("streakW").textContent=wStreak;
+  $("progressW").style.width=`${(wPos+1)/wOrder.length*100}%`;
+  $("nextBtnW").textContent=wPos===wOrder.length-1?"Завершить раунд":"Следующее слово →";
+  $("nextRowW").classList.remove("hidden");
+}
+
+function nextWord(){wPos++;if(wPos>=wOrder.length)finishWords();else renderWords()}
+
+function finishWords(){
+  $("quizWords").classList.add("hidden");$("finish").classList.remove("hidden");
+  $("finalScore").textContent=`Результат: ${wScore} из ${wOrder.length} (${Math.round(wScore/wOrder.length*100)}%).`;
+  $("finalText").textContent=wWrong.length?`Ошибок: ${wWrong.length}. Можно пройти их отдельно.`:"Без ошибок — идеально!";
+  localStorage.setItem("roundW",String(Number(localStorage.getItem("roundW")||0)+1));
+}
+
+/* ============ ОБРАБОТЧИКИ ============ */
+$("answerForm").addEventListener("submit",checkVerbs);
+$("nextBtn").addEventListener("click",nextVerb);
+$("restartBtn").addEventListener("click",()=>startVerbs());
+$("retryWrongBtn").addEventListener("click",()=>wrong.length?startVerbs(wrong):alert("Пока нет ошибок — отлично!"));
+$("shuffleBtn").addEventListener("click",()=>{shuffle=!shuffle;$("shuffleBtn").classList.toggle("selected",shuffle);$("shuffleBtn").textContent=`🔀 Случайный порядок: ${shuffle?"вкл.":"выкл."}`;saveVerbs()});
+
+$("answerFormW").addEventListener("submit",checkWords);
+$("nextBtnW").addEventListener("click",nextWord);
+$("startWordsBtn").addEventListener("click",()=>startWords());
+$("retryWrongBtnW").addEventListener("click",()=>wWrong.length?startWords(wWrong.map(i=>wPool[i])):alert("Пока нет ошибок — отлично!"));
+
+$("againBtn").addEventListener("click",()=>{ if(mode==="verbs") startVerbs(); else startWords(); });
+$("wrongAgainBtn").addEventListener("click",()=>{
+  if(mode==="verbs") wrong.length?startVerbs(wrong):startVerbs();
+  else wWrong.length?startWords(wWrong.map(i=>wPool[i])):startWords();
 });
 
-start();
-</script>
-</body>
-</html>
+/* ============ ТЕМА ============ */
+const themeBtn = $("theme
