@@ -54,6 +54,9 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .modules{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 16px}
 .modules label{display:flex;align-items:center;gap:6px;background:#edf0f7;padding:8px 12px;border-radius:12px;cursor:pointer;font-size:14px;font-weight:600}
 .modules input{accent-color:var(--accent)}
+.dirToggle{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.dirToggle button{background:#edf0f7;color:var(--ink);border:0;border-radius:12px;padding:8px 12px;font-weight:700;cursor:pointer;font-size:13px}
+.dirToggle button.active{background:var(--accent);color:#fff}
 
 /* Кнопка темы */
 #themeBtn{position:fixed;top:16px;right:16px;z-index:999;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:18px;cursor:pointer;box-shadow:0 4px 12px #0000001a;transition:background .2s,color .2s,border-color .2s}
@@ -62,7 +65,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
 /* Тёмная тема */
 body.dark{--bg:#0f1420;--card:#1a2130;--ink:#e8edf7;--muted:#8b96ab;--line:#2a3346;--accent:#5b7cff;--good:#3fbf7f;--bad:#ff6b5e;color-scheme:dark}
 body.dark input[type=text]{background:#121a28;color:var(--ink);border-color:#2a3346}
-body.dark .secondary,body.dark .tabs button,body.dark .modules label{background:#232c3e;color:var(--ink)}
+body.dark .secondary,body.dark .tabs button,body.dark .modules label,body.dark .dirToggle button{background:#232c3e;color:var(--ink)}
 body.dark .settings .selected{background:#2a3a6b;color:#b9c8ff}
 body.dark .feedback.good{background:#12261c}
 body.dark .feedback.bad{background:#2a1614}
@@ -119,8 +122,14 @@ body.dark .searchResults .item:hover{background:#232c3e}
 
     <div class="modules" id="moduleList"></div>
 
+    <!-- Переключатель направления -->
+    <div class="dirToggle">
+      <button id="dirRuEn" class="active">🇷🇺 → 🇬🇧 Русский → Английский</button>
+      <button id="dirEnRu">🇬🇧 → 🇷🇺 Английский → Русский</button>
+    </div>
+
     <div class="prompt" id="promptW">—</div>
-    <div class="hint" id="hintW">Введи перевод на английском</div>
+    <div class="hint" id="hintW">Введи перевод</div>
     <form id="answerFormW">
       <label for="answerW">Твой ответ</label>
       <input type="text" id="answerW" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="например: relationship" required>
@@ -211,7 +220,6 @@ const verbs = [
 ];
 
 // Слова по модулям: { module: [ [ru, en, ...доп.значения], ... ] }
-// В квизе показываем ru -> en (2-3 значения можно через /)
 const wordModules = {
   "Module 1 — Relationships": [
     ["отношения","relationship","relationships"],
@@ -295,20 +303,60 @@ let order=[], pos=0, score=0, streak=0, wrong=[], checked=false, shuffle=true;
 
 // Вордс-квиз
 let wOrder=[], wPos=0, wScore=0, wStreak=0, wWrong=[], wChecked=false;
-let wPool = []; // текущий пул слов
+let wPool = [];
+let wDirection = "ru-en"; // "ru-en" | "en-ru"
 
 /* ============ ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ============ */
+function resetVerbs(){
+  order=[]; pos=0; score=0; streak=0; wrong=[]; checked=false;
+  $("score").textContent = 0;
+  $("streak").textContent = 0;
+  $("progress").style.width = "0%";
+  $("feedback").className = "feedback hidden";
+  $("nextRow").classList.add("hidden");
+  $("answer").value = "";
+  $("answer").disabled = false;
+  $("checkBtn").disabled = false;
+}
+
+function resetWords(){
+  wOrder=[]; wPos=0; wScore=0; wStreak=0; wWrong=[]; wChecked=false; wPool=[];
+  $("scoreW").textContent = 0;
+  $("streakW").textContent = 0;
+  $("progressW").style.width = "0%";
+  $("feedbackW").className = "feedback hidden";
+  $("nextRowW").classList.add("hidden");
+  $("answerW").value = "";
+  $("answerW").disabled = false;
+  $("checkBtnW").disabled = false;
+  $("promptW").textContent = "—";
+}
+
 function switchMode(m){
+  // Сбрасываем режим, с которого уходим
+  if(mode === "verbs" && m !== "verbs") resetVerbs();
+  if(mode === "words" && m !== "words") resetWords();
+
   mode = m;
   $("tabVerbs").classList.toggle("active", m==="verbs");
   $("tabWords").classList.toggle("active", m==="words");
   $("quizVerbs").classList.toggle("hidden", m!=="verbs");
   $("quizWords").classList.toggle("hidden", m!=="words");
   $("finish").classList.add("hidden");
+
+  // При входе в режим — стартуем заново
+  if(m === "verbs") startVerbs();
+  if(m === "words") { renderModules(); startWords(); }
 }
 
-$("tabVerbs").addEventListener("click", () => { switchMode("verbs"); startVerbs(); });
-$("tabWords").addEventListener("click", () => { switchMode("words"); renderModules(); });
+$("tabVerbs").addEventListener("click", () => {
+  if(mode === "verbs"){ startVerbs(); return; }
+  switchMode("verbs");
+});
+$("tabWords").addEventListener("click", () => {
+  if(mode === "words"){ startWords(); return; }
+  switchMode("words");
+});
 
 /* ============ ПОИСК ============ */
 const searchInput = $("searchInput");
@@ -316,11 +364,9 @@ const searchResults = $("searchResults");
 
 function buildSearchIndex(){
   const idx = [];
-  // Глаголы
   verbs.forEach((v, i) => {
     idx.push({ type:"verb", idx:i, ru:v[0], en:[v[1],v[2],v[3]].join(" / ").toLowerCase() });
   });
-  // Слова
   Object.entries(wordModules).forEach(([mod, list]) => {
     list.forEach((w, i) => {
       idx.push({ type:"word", mod, idx:i, ru:w[0], en:w.slice(1).join(" / ").toLowerCase() });
@@ -333,7 +379,6 @@ const searchIndex = buildSearchIndex();
 function doSearch(q){
   q = q.toLowerCase().trim();
   if(!q){ searchResults.classList.add("hidden"); searchResults.innerHTML=""; return; }
-  // Совпадения: по русскому, по английскому, по первым буквам
   const matches = searchIndex.filter(it =>
     it.ru.toLowerCase().includes(q) || it.en.includes(q)
   ).slice(0, 20);
@@ -373,22 +418,22 @@ searchResults.addEventListener("click", e => {
   const idx = Number(item.dataset.idx);
   const mod = item.dataset.mod;
   if(type === "verb"){
-    // Открываем вкладку глаголов и начинаем с этого глагола
     switchMode("verbs");
     order = [idx]; pos = 0; score = 0; streak = 0; wrong = []; checked = false;
     $("quizVerbs").classList.remove("hidden");
     $("finish").classList.add("hidden");
-    updateStats(); renderVerbs();
+    $("score").textContent = 0;
+    $("streak").textContent = 0;
+    renderVerbs();
   } else {
-    // Открываем вкладку слов и начинаем с этого слова
     switchMode("words");
-    renderModules();
-    // Снимаем все галочки, ставим только нужный модуль
     document.querySelectorAll("#moduleList input").forEach(cb => {
       cb.checked = (cb.value === mod);
     });
     wPool = [ wordModules[mod][idx] ];
     wOrder = [0]; wPos = 0; wScore = 0; wStreak = 0; wWrong = []; wChecked = false;
+    $("scoreW").textContent = 0;
+    $("streakW").textContent = 0;
     $("quizWords").classList.remove("hidden");
     $("finish").classList.add("hidden");
     renderWords();
@@ -435,7 +480,6 @@ function checkVerbs(e){
 }
 
 function nextVerb(){pos++;if(pos>=order.length)finishVerbs();else renderVerbs()}
-
 function updateStats(){$("score").textContent=score;$("streak").textContent=streak}
 
 function finishVerbs(){
@@ -482,7 +526,16 @@ function startWords(list=null){
 function renderWords(){
   if(wPos>=wOrder.length){finishWords();return}
   const w = wPool[wOrder[wPos]];
-  $("promptW").textContent = w[0]; // русский
+  // Направление
+  if(wDirection === "ru-en"){
+    $("promptW").textContent = w[0]; // русский
+    $("hintW").textContent = "Введи перевод на английском";
+    $("answerW").placeholder = "например: relationship";
+  } else {
+    $("promptW").textContent = w.slice(1).join(" / "); // английский
+    $("hintW").textContent = "Введи перевод на русском";
+    $("answerW").placeholder = "например: отношения";
+  }
   $("countW").textContent = `Вопрос ${wPos+1} из ${wOrder.length}`;
   $("roundLabelW").textContent = `Раунд ${Number(localStorage.getItem("roundW")||0)+1}`;
   $("progressW").style.width = `${wPos/wOrder.length*100}%`;
@@ -494,62 +547,23 @@ function renderWords(){
 function checkWords(e){
   e.preventDefault();if(wChecked)return;
   const w = wPool[wOrder[wPos]];
-  const correct = w.slice(1).map(x => x.toLowerCase()); // все правильные варианты
   const user = $("answerW").value.toLowerCase().trim();
+
+  let correct, display;
+  if(wDirection === "ru-en"){
+    correct = w.slice(1).map(x => x.toLowerCase());
+    display = w.slice(1).join(" / ");
+  } else {
+    correct = w[0].toLowerCase().split("/").map(s => s.trim());
+    display = w[0];
+  }
   const ok = correct.some(c => c === user || c.split("/").map(s=>s.trim()).includes(user));
+
   wChecked=true;$("answerW").disabled=true;$("checkBtnW").disabled=true;
   $("feedbackW").className="feedback "+(ok?"good":"bad");
   $("feedbackW").innerHTML=(ok?"Верно! 🎉":"Почти! Правильный ответ:")+
-    `<div class="answer">${w.slice(1).join(" / ")}</div>`;
+    `<div class="answer">${display}</div>`;
   if(ok){wScore++;wStreak++}else{wStreak=0;wWrong.push(wOrder[wPos])}
   $("scoreW").textContent=wScore;$("streakW").textContent=wStreak;
   $("progressW").style.width=`${(wPos+1)/wOrder.length*100}%`;
-  $("nextBtnW").textContent=wPos===wOrder.length-1?"Завершить раунд":"Следующее слово →";
-  $("nextRowW").classList.remove("hidden");
-}
-
-function nextWord(){wPos++;if(wPos>=wOrder.length)finishWords();else renderWords()}
-
-function finishWords(){
-  $("quizWords").classList.add("hidden");$("finish").classList.remove("hidden");
-  $("finalScore").textContent=`Результат: ${wScore} из ${wOrder.length} (${Math.round(wScore/wOrder.length*100)}%).`;
-  $("finalText").textContent=wWrong.length?`Ошибок: ${wWrong.length}. Можно пройти их отдельно.`:"Без ошибок — идеально!";
-  localStorage.setItem("roundW",String(Number(localStorage.getItem("roundW")||0)+1));
-}
-
-/* ============ ОБРАБОТЧИКИ ============ */
-$("answerForm").addEventListener("submit",checkVerbs);
-$("nextBtn").addEventListener("click",nextVerb);
-$("restartBtn").addEventListener("click",()=>startVerbs());
-$("retryWrongBtn").addEventListener("click",()=>wrong.length?startVerbs(wrong):alert("Пока нет ошибок — отлично!"));
-$("shuffleBtn").addEventListener("click",()=>{shuffle=!shuffle;$("shuffleBtn").classList.toggle("selected",shuffle);$("shuffleBtn").textContent=`🔀 Случайный порядок: ${shuffle?"вкл.":"выкл."}`;saveVerbs()});
-
-$("answerFormW").addEventListener("submit",checkWords);
-$("nextBtnW").addEventListener("click",nextWord);
-$("startWordsBtn").addEventListener("click",()=>startWords());
-$("retryWrongBtnW").addEventListener("click",()=>wWrong.length?startWords(wWrong.map(i=>wPool[i])):alert("Пока нет ошибок — отлично!"));
-
-$("againBtn").addEventListener("click",()=>{ if(mode==="verbs") startVerbs(); else startWords(); });
-$("wrongAgainBtn").addEventListener("click",()=>{
-  if(mode==="verbs") wrong.length?startVerbs(wrong):startVerbs();
-  else wWrong.length?startWords(wWrong.map(i=>wPool[i])):startWords();
-});
-
-/* ============ ТЕМА ============ */
-const themeBtn = $("themeBtn");
-function applyTheme(dark){
-  document.body.classList.toggle("dark", dark);
-  themeBtn.textContent = dark ? "☀️" : "🌙";
-  localStorage.setItem("theme", dark ? "dark" : "light");
-}
-applyTheme(localStorage.getItem("theme") === "dark");
-themeBtn.addEventListener("click", () => {
-  applyTheme(!document.body.classList.contains("dark"));
-});
-
-/* ============ СТАРТ ============ */
-renderModules();
-startVerbs();
-</script>
-</body>
-</html>
+  $("nextBtnW").textContent=wPos===wOrder.length-1?"Завершить раунд":"Следующее
