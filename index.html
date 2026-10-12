@@ -91,10 +91,9 @@ body.dark #searchPanel .head input{background:#121a28;color:var(--ink);border-co
 </head>
 <body>
 
-<!-- Кнопка поиска (левый верхний угол) -->
+<!-- Поиск (левый верхний угол) -->
 <button id="searchFab" title="Поиск (Ctrl+K)">🔍</button>
 
-<!-- Панель поиска -->
 <div id="searchPanel" class="hidden">
   <div class="head">
     <input type="text" id="searchInput" placeholder="Поиск: русский или английский..." autocomplete="off">
@@ -108,16 +107,15 @@ body.dark #searchPanel .head input{background:#121a28;color:var(--ink);border-co
   <div id="searchResults"></div>
 </div>
 
-<!-- Кнопка темы (правый верхний угол) -->
+<!-- Тема (правый верхний угол) -->
 <button id="themeBtn" title="Сменить тему">🌙</button>
 
 <main>
   <div class="top">
     <div class="brand">📚 English Trainer</div>
-    <div class="tag">Irregular Verbs + Modules</div>
+    <div class="tag">Irregular Verbs + Module 1</div>
   </div>
 
-  <!-- Вкладки -->
   <div class="tabs">
     <button id="tabVerbs" class="active">Неправильные глаголы</button>
     <button id="tabWords">Слова по модулям</button>
@@ -184,9 +182,7 @@ body.dark #searchPanel .head input{background:#121a28;color:var(--ink);border-co
 </main>
 
 <script>
-/* ============ ДАННЫЕ ============ */
-
-// Неправильные глаголы: [перевод, inf, past, pp]
+/* ============ НЕПРАВИЛЬНЫЕ ГЛАГОЛЫ ============ */
 const verbs = [
 ["быть, находиться","be","was/were","been"],
 ["становиться, делаться","become","became","become"],
@@ -247,45 +243,55 @@ const verbs = [
 ["говорить, сказать","say","said","said"]
 ];
 
-/*
-  Слова по модулям.
-  Формат: [русский, англ1, англ2, англ3, англ4]
-  У КАЖДОГО слова 3–4 значения (переводы/синонимы).
-  Если хочешь добавить своё — просто допиши строку с 3–4 английскими вариантами.
-*/
+/* ============================================================
+   MODULE 1 — RELATIONSHIPS
+   Три подкатегории из учебника (внизу страницы):
+   • Relations
+   • Relationships
+   • Communication
+   Формат: [русский, англ1, англ2, англ3, англ4]
+   ============================================================ */
 const wordModules = {
-  "Module 1 — Relationships": [
+  "M1 · Relations": [
+    ["тётя","aunt","auntie","aunty","relative"],
+    ["дядя","uncle","relative","kin","family member"],
+    ["двоюродный брат/сестра","cousin","cousin brother","cousin sister","relative"],
+    ["прабабушка","great-grandmother","great grandma","ancestor","forebear"],
+    ["прадедушка","great-grandfather","great grandpa","ancestor","forebear"],
+    ["сводный брат","half-brother","stepbrother","brother","sibling"],
+    ["сводная сестра","half-sister","stepsister","sister","sibling"],
+    ["мачеха","stepmother","stepmom","stepmum","foster mother"],
+    ["отчим","stepfather","stepdad","foster father","guardian"],
+    ["брат","brother","sibling","bro","kin"],
+    ["сестра","sister","sibling","sis","kin"],
+    ["мать","mother","mom","mum","parent"],
+    ["отец","father","dad","daddy","parent"],
+    ["родители","parents","mother and father","folks","guardians"],
+    ["бабушка","grandmother","grandma","granny","nan"],
+    ["дедушка","grandfather","grandpa","granddad","gramps"],
+    ["родственник","relative","relation","kin","family member"],
+    ["член семьи","family member","relative","relation","kin"],
+    ["семья","family","relatives","household","kin"],
+    ["близкий родственник","close relative","immediate family","next of kin","kin"]
+  ],
+
+  "M1 · Relationships": [
     ["отношения","relationship","relationships","relation","connection"],
     ["дружба","friendship","friendships","companionship","bond"],
     ["друг","friend","mate","buddy","pal"],
     ["подруга","friend","girlfriend","female friend","mate"],
-    ["член семьи","family member","relative","relation","kin"],
-    ["родственник","relative","relation","kin","family member"],
-    ["родители","parents","mother and father","folks","guardians"],
-    ["мать","mother","mom","mum","parent"],
-    ["отец","father","dad","daddy","parent"],
-    ["брат","brother","sibling","bro","kin"],
-    ["сестра","sister","sibling","sis","kin"],
-    ["бабушка","grandmother","grandma","granny","nan"],
-    ["дедушка","grandfather","grandpa","granddad","gramps"],
-    ["тётя","aunt","auntie","aunty","relative"],
-    ["дядя","uncle","relative","kin","family member"],
-    ["двоюродный брат / сестра","cousin","cousin brother","cousin sister","relative"],
-    ["племянник","nephew","relative","kin","family member"],
-    ["племянница","niece","relative","kin","family member"],
-    ["муж","husband","spouse","partner","mate"],
-    ["жена","wife","spouse","partner","mate"],
+    ["близкий друг","close friend","best friend","confidant","buddy"],
     ["парень (бойфренд)","boyfriend","partner","guy","date"],
     ["девушка (герлфренд)","girlfriend","partner","gal","date"],
-    ["жених / невеста","fiancé / fiancée","betrothed","partner","bride/groom"],
+    ["жених/невеста","fiancé / fiancée","betrothed","partner","bride/groom"],
+    ["муж","husband","spouse","partner","mate"],
+    ["жена","wife","spouse","partner","mate"],
     ["сосед","neighbour","neighbor","roommate","housemate"],
     ["одноклассник","classmate","schoolmate","peer","fellow student"],
     ["коллега","colleague","co-worker","workmate","associate"],
-    ["близкий друг","close friend","best friend","confidant","buddy"],
     ["знакомый","acquaintance","contact","someone you know","peer"],
     ["свидание","date","appointment","meeting","rendezvous"],
     ["отношения на расстоянии","long-distance relationship","remote relationship","LDR","online relationship"],
-    ["поддерживать связь","keep in touch","stay in touch","keep contact","remain in contact"],
     ["ладить","get on well","get along","get on","hit it off"],
     ["ссориться","argue","quarrel","fight","disagree"],
     ["мириться","make up","reconcile","patch things up","bury the hatchet"],
@@ -294,22 +300,14 @@ const wordModules = {
     ["уважать","respect","admire","look up to","honour"],
     ["заботиться","care for","look after","take care of","mind"],
     ["влюбляться","fall in love","fall for","become attached","lose your heart"],
-    ["жениться / выходить замуж","marry","get married","tie the knot","wed"],
+    ["жениться/выходить замуж","marry","get married","tie the knot","wed"],
     ["разводиться","divorce","get divorced","split up","separate"],
     ["встречаться","date","go out","see each other","hang out"],
-    ["общаться","communicate","socialize","interact","connect"],
-    ["разговаривать по телефону","talk on the phone","call","phone","have a call"],
-    ["переписываться","text each other","message","chat","write"],
-    ["созваниваться по видео","video call","Skype","FaceTime","video chat"],
-    ["социальная сеть","social network","social media","platform","site"],
-    ["общаться в интернете","chat online","talk online","message online","connect online"],
-    ["смысл жизни","meaning of life","purpose of life","point of life","life purpose"],
     ["чувство юмора","sense of humour","sense of humor","wit","comic sense"],
     ["характер","character","personality","temperament","nature"],
-    ["внешность","appearance","looks","appearance","image"],
+    ["внешность","appearance","looks","image","style"],
     ["общие интересы","common interests","shared interests","similar hobbies","mutual interests"],
-    ["вкус (предпочтение)","taste","preference","liking","style"],
-    ["поддерживать отношения","maintain relationships","keep relationships","sustain relationships","nurture relationships"],
+    ["вкус","taste","preference","liking","style"],
     ["доверие","trust","confidence","faith","reliance"],
     ["уважение","respect","esteem","admiration","regard"],
     ["любовь","love","affection","passion","devotion"],
@@ -319,26 +317,46 @@ const wordModules = {
     ["свадьба","wedding","marriage","ceremony","nuptials"],
     ["помолвка","engagement","betrothal","proposal","agreement"],
     ["родство","kinship","relation","family tie","blood relation"]
+  ],
+
+  "M1 · Communication": [
+    ["общаться","communicate","socialize","interact","connect"],
+    ["встречаться","meet up","get together","see each other","hang out"],
+    ["видеться","see each other","meet","get together","visit"],
+    ["разговаривать по телефону","talk on the phone","call","phone","have a call"],
+    ["звонить","call","phone","ring","give a ring"],
+    ["переписываться","text each other","message","chat","write"],
+    ["созваниваться по видео","video call","Skype","FaceTime","video chat"],
+    ["социальная сеть","social network","social media","platform","site"],
+    ["общаться в интернете","chat online","talk online","message online","connect online"],
+    ["поддерживать связь","keep in touch","stay in touch","keep contact","remain in contact"],
+    ["встречаться (регулярно)","go out together","date","hang out","spend time together"],
+    ["делиться","share","tell","reveal","confide"],
+    ["обсуждать","discuss","talk about","chat about","debate"],
+    ["спрашивать","ask","inquire","question","wonder"],
+    ["отвечать","answer","reply","respond","react"],
+    ["слушать","listen","hear","pay attention","tune in"],
+    ["говорить","speak","talk","say","tell"],
+    ["писать","write","text","type","message"],
+    ["читать","read","look through","scan","browse"],
+    ["отправлять","send","forward","post","share"]
   ]
 };
 
 /* ============ ХЕЛПЕРЫ ============ */
 const $ = id => document.getElementById(id);
 const accepted = s => s.split("/").map(x => x.trim().toLowerCase());
-const parseAnswer = s => s.toLowerCase().trim().split(/[\s,;—–-]+/).filter(Boolean);
 
 /* ============ СОСТОЯНИЕ ============ */
 let mode = "verbs";
 
-// Верб-квиз
 let order=[], pos=0, score=0, streak=0, wrong=[], checked=false, shuffle=true;
 
-// Вордс-квиз
 let wOrder=[], wPos=0, wScore=0, wStreak=0, wWrong=[], wChecked=false;
 let wPool = [];
-let wDirection = "ru-en"; // "ru-en" | "en-ru"
+let wDirection = "ru-en";
 
-/* ============ ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ============ */
+/* ============ ВКЛАДКИ ============ */
 function resetVerbs(){
   order=[]; pos=0; score=0; streak=0; wrong=[]; checked=false;
   $("score").textContent = 0;
@@ -409,14 +427,8 @@ function buildSearchIndex(){
 }
 const searchIndex = buildSearchIndex();
 
-function openSearch(){
-  searchPanel.classList.remove("hidden");
-  searchInput.focus();
-}
-function closeSearch(){
-  searchPanel.classList.add("hidden");
-  searchResults.innerHTML = "";
-}
+function openSearch(){ searchPanel.classList.remove("hidden"); searchInput.focus(); }
+function closeSearch(){ searchPanel.classList.add("hidden"); searchResults.innerHTML = ""; }
 
 searchFab.addEventListener("click", () => {
   searchPanel.classList.contains("hidden") ? openSearch() : closeSearch();
@@ -425,10 +437,7 @@ $("searchClose").addEventListener("click", closeSearch);
 
 document.addEventListener("keydown", e => {
   if(e.key === "Escape") closeSearch();
-  if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k"){
-    e.preventDefault();
-    openSearch();
-  }
+  if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k"){ e.preventDefault(); openSearch(); }
 });
 
 document.querySelectorAll("#searchPanel .filters button").forEach(btn => {
@@ -446,15 +455,10 @@ function doSearch(q){
   let matches = searchIndex.filter(it =>
     it.ru.toLowerCase().includes(q) || it.en.toLowerCase().includes(q)
   );
-  if(searchFilter !== "all"){
-    matches = matches.filter(m => m.type === searchFilter);
-  }
+  if(searchFilter !== "all") matches = matches.filter(m => m.type === searchFilter);
   matches = matches.slice(0, 30);
 
-  if(!matches.length){
-    searchResults.innerHTML = `<div class="empty">Ничего не найдено</div>`;
-    return;
-  }
+  if(!matches.length){ searchResults.innerHTML = `<div class="empty">Ничего не найдено</div>`; return; }
   searchResults.innerHTML = matches.map(m => {
     const ru = highlight(m.ru, q);
     const en = highlight(m.en, q);
@@ -531,7 +535,7 @@ function renderVerbs(){
 
 function checkVerbs(e){
   e.preventDefault();if(checked)return;
-  const v=verbs[order[pos]], p=parseAnswer($("answer").value);
+  const v=verbs[order[pos]], p=$("answer").value.toLowerCase().trim().split(/[\s,;—–-]+/).filter(Boolean);
   const ok=p.length===3 && p.every((x,i)=>accepted(v[i+1]).some(a=>a===x));
   checked=true;$("answer").disabled=true;$("checkBtn").disabled=true;
   $("feedback").className="feedback "+(ok?"good":"bad");
@@ -569,15 +573,13 @@ function renderModules(){
 function getSelectedWords(){
   const checked = [...document.querySelectorAll("#moduleList input:checked")].map(cb => cb.value);
   const pool = [];
-  checked.forEach(m => {
-    wordModules[m].forEach(w => pool.push(w));
-  });
+  checked.forEach(m => wordModules[m].forEach(w => pool.push(w)));
   return pool;
 }
 
 function startWords(list=null){
   wPool = list ? [...list] : getSelectedWords();
-  if(!wPool.length){ alert("Выбери хотя бы один модуль"); return; }
+  if(!wPool.length){ alert("Выбери хотя бы одну категорию"); return; }
   wOrder = wPool.map((_,i)=>i);
   wOrder.sort(()=>Math.random()-.5);
   wPos=0;wScore=0;wStreak=0;wWrong=[];wChecked=false;
@@ -642,7 +644,7 @@ function finishWords(){
   localStorage.setItem("roundW",String(Number(localStorage.getItem("roundW")||0)+1));
 }
 
-/* ============ НАПРАВЛЕНИЕ ПЕРЕВОДА ============ */
+/* ============ НАПРАВЛЕНИЕ ============ */
 $("dirRuEn").addEventListener("click", () => {
   wDirection = "ru-en";
   $("dirRuEn").classList.add("active");
@@ -682,9 +684,7 @@ function applyTheme(dark){
   localStorage.setItem("theme", dark ? "dark" : "light");
 }
 applyTheme(localStorage.getItem("theme") === "dark");
-themeBtn.addEventListener("click", () => {
-  applyTheme(!document.body.classList.contains("dark"));
-});
+themeBtn.addEventListener("click", () => applyTheme(!document.body.classList.contains("dark")));
 
 /* ============ СТАРТ ============ */
 renderModules();
