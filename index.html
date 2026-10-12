@@ -12,6 +12,36 @@ main{width:min(100%,650px)}.top{display:flex;justify-content:space-between;gap:1
 .progressline{height:7px;background:#e9edf5;border-radius:99px;overflow:hidden;margin:12px 0 24px}.progress{height:100%;width:0;background:var(--accent);transition:width .2s}
 .meta{display:flex;justify-content:space-between;color:var(--muted);font-size:13px;gap:12px}.prompt{font-size:clamp(26px,5vw,36px);font-weight:800;line-height:1.2;text-align:center;margin:22px 0 8px}.hint{text-align:center;color:var(--muted);font-size:14px;margin-bottom:24px}
 label{display:block;font-weight:650;margin-bottom:8px}input{width:100%;font:inherit;padding:14px 15px;border:1px solid #cbd3e1;border-radius:12px;outline:none}input:focus{border-color:var(--accent);box-shadow:0 0 0 3px #3457d51c}button{font:inherit;font-weight:700;border:0;border-radius:12px;padding:13px 16px;cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}.primary{background:var(--accent);color:white;width:100%;margin-top:12px}.secondary{background:#edf0f7;color:var(--ink)}.row{display:flex;gap:10px;margin-top:12px}.row button{flex:1}.feedback{padding:14px;border-radius:12px;margin-top:16px}.feedback.good{background:#eaf7ef;color:var(--good)}.feedback.bad{background:#fff0ef;color:var(--bad)}.answer{color:var(--ink);font-weight:800;margin-top:4px}.stats{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:14px;margin-top:20px}.settings{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}.settings button{font-size:13px;padding:8px 11px}.settings .selected{background:#e4e9ff;color:#233eb2}.hidden{display:none!important}.finish{text-align:center}.finish h2{font-size:30px}.small{font-size:13px;color:var(--muted);text-align:center;margin-top:16px}.kbd{font-size:12px;background:#edf0f7;padding:2px 6px;border-radius:5px}
+/* === ТЁМНАЯ ТЕМА === */
+body.dark{
+  --bg:#0f1420;
+  --card:#1a2130;
+  --ink:#e8edf7;
+  --muted:#8b96ab;
+  --line:#2a3346;
+  --accent:#5b7cff;
+  --good:#3fbf7f;
+  --bad:#ff6b5e;
+  color-scheme:dark;
+}
+body.dark input{background:#121a28;color:var(--ink);border-color:#2a3346}
+body.dark .secondary{background:#232c3e;color:var(--ink)}
+body.dark .settings .selected{background:#2a3a6b;color:#b9c8ff}
+body.dark .feedback.good{background:#12261c}
+body.dark .feedback.bad{background:#2a1614}
+body.dark .progressline{background:#232c3e}
+body.dark .kbd{background:#232c3e}
+body.dark .card{box-shadow:0 12px 35px #00000055}
+
+/* Кнопка темы */
+#themeBtn{
+  position:fixed;top:16px;right:16px;z-index:999;
+  background:var(--card);color:var(--ink);
+  border:1px solid var(--line);border-radius:12px;
+  padding:10px 14px;font-size:18px;cursor:pointer;
+  box-shadow:0 4px 12px #0000001a;
+}
+#themeBtn:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
 </style>
 </head>
 <body>
