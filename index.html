@@ -16,15 +16,6 @@ main{width:min(100%,720px)}
 .tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
 .tabs button{background:#edf0f7;color:var(--ink);border:0;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer;font-size:14px;transition:background .2s}
 .tabs button.active{background:var(--accent);color:#fff}
-.searchWrap{position:relative;margin-bottom:16px}
-.searchWrap input{width:100%;font:inherit;padding:12px 14px;border:1px solid #cbd3e1;border-radius:12px;outline:none;background:var(--card);color:var(--ink)}
-.searchWrap input:focus{border-color:var(--accent);box-shadow:0 0 0 3px #3457d51c}
-.searchResults{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 35px #25365b1a;max-height:320px;overflow-y:auto;z-index:50}
-.searchResults .item{padding:10px 14px;border-bottom:1px solid var(--line);cursor:pointer;font-size:14px}
-.searchResults .item:last-child{border-bottom:0}
-.searchResults .item:hover{background:#edf0f7}
-.searchResults .item b{color:var(--accent)}
-.searchResults .empty{padding:12px 14px;color:var(--muted);font-size:13px}
 .progressline{height:7px;background:#e9edf5;border-radius:99px;overflow:hidden;margin:12px 0 24px}
 .progress{height:100%;width:0;background:var(--accent);transition:width .2s}
 .meta{display:flex;justify-content:space-between;color:var(--muted);font-size:13px;gap:12px;flex-wrap:wrap}
@@ -58,6 +49,26 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .dirToggle button{background:#edf0f7;color:var(--ink);border:0;border-radius:12px;padding:8px 12px;font-weight:700;cursor:pointer;font-size:13px}
 .dirToggle button.active{background:var(--accent);color:#fff}
 
+/* Поиск в углу */
+#searchFab{position:fixed;top:16px;left:16px;z-index:1000;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:18px;cursor:pointer;box-shadow:0 4px 12px #0000001a;transition:background .2s,color .2s,border-color .2s}
+#searchFab:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+#searchPanel{position:fixed;top:70px;left:16px;width:min(420px, calc(100vw - 32px));max-height:70vh;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 20px 50px #00000033;z-index:1001;display:flex;flex-direction:column;overflow:hidden}
+#searchPanel .head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:center}
+#searchPanel .head input{flex:1;font:inherit;padding:10px 12px;border:1px solid #cbd3e1;border-radius:10px;outline:none;background:var(--bg);color:var(--ink)}
+#searchPanel .head input:focus{border-color:var(--accent);box-shadow:0 0 0 3px #3457d51c}
+#searchPanel .head button{background:transparent;color:var(--muted);font-size:18px;padding:4px 8px;border-radius:8px}
+#searchPanel .head button:hover{background:#edf0f7;color:var(--ink)}
+#searchPanel .filters{display:flex;gap:6px;padding:10px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+#searchPanel .filters button{background:#edf0f7;color:var(--ink);border:0;border-radius:10px;padding:6px 10px;font-size:12px;font-weight:700;cursor:pointer}
+#searchPanel .filters button.active{background:var(--accent);color:#fff}
+#searchResults{overflow-y:auto;max-height:50vh}
+#searchResults .item{padding:10px 16px;border-bottom:1px solid var(--line);cursor:pointer;font-size:14px}
+#searchResults .item:last-child{border-bottom:0}
+#searchResults .item:hover{background:#edf0f7}
+#searchResults .item b{color:var(--accent)}
+#searchResults .item .meta-line{color:var(--muted);font-size:12px;margin-top:2px}
+#searchResults .empty{padding:16px;color:var(--muted);font-size:13px;text-align:center}
+
 /* Кнопка темы */
 #themeBtn{position:fixed;top:16px;right:16px;z-index:999;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:18px;cursor:pointer;box-shadow:0 4px 12px #0000001a;transition:background .2s,color .2s,border-color .2s}
 #themeBtn:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
@@ -71,11 +82,35 @@ body.dark .feedback.good{background:#12261c}
 body.dark .feedback.bad{background:#2a1614}
 body.dark .progressline{background:#232c3e}
 body.dark .card{box-shadow:0 12px 35px #00000055}
-body.dark .searchResults .item:hover{background:#232c3e}
+body.dark #searchResults .item:hover{background:#232c3e}
+body.dark #searchPanel .head button:hover{background:#232c3e}
+body.dark #searchPanel .filters button{background:#232c3e;color:var(--ink)}
+body.dark #searchPanel .filters button.active{background:var(--accent);color:#fff}
+body.dark #searchPanel .head input{background:#121a28;color:var(--ink);border-color:#2a3346}
 </style>
 </head>
 <body>
+
+<!-- Кнопка поиска (левый верхний угол) -->
+<button id="searchFab" title="Поиск (Ctrl+K)">🔍</button>
+
+<!-- Панель поиска -->
+<div id="searchPanel" class="hidden">
+  <div class="head">
+    <input type="text" id="searchInput" placeholder="Поиск: русский или английский..." autocomplete="off">
+    <button id="searchClose" title="Закрыть">✕</button>
+  </div>
+  <div class="filters">
+    <button data-filter="all" class="active">Всё</button>
+    <button data-filter="verb">Глаголы</button>
+    <button data-filter="word">Слова</button>
+  </div>
+  <div id="searchResults"></div>
+</div>
+
+<!-- Кнопка темы (правый верхний угол) -->
 <button id="themeBtn" title="Сменить тему">🌙</button>
+
 <main>
   <div class="top">
     <div class="brand">📚 English Trainer</div>
@@ -86,12 +121,6 @@ body.dark .searchResults .item:hover{background:#232c3e}
   <div class="tabs">
     <button id="tabVerbs" class="active">Неправильные глаголы</button>
     <button id="tabWords">Слова по модулям</button>
-  </div>
-
-  <!-- Поиск -->
-  <div class="searchWrap">
-    <input type="text" id="searchInput" placeholder="Поиск: введи слово на русском или английском..." autocomplete="off">
-    <div class="searchResults hidden" id="searchResults"></div>
   </div>
 
   <!-- КВИЗ: ГЛАГОЛЫ -->
@@ -122,7 +151,6 @@ body.dark .searchResults .item:hover{background:#232c3e}
 
     <div class="modules" id="moduleList"></div>
 
-    <!-- Переключатель направления -->
     <div class="dirToggle">
       <button id="dirRuEn" class="active">🇷🇺 → 🇬🇧 Русский → Английский</button>
       <button id="dirEnRu">🇬🇧 → 🇷🇺 Английский → Русский</button>
@@ -219,84 +247,88 @@ const verbs = [
 ["говорить, сказать","say","said","said"]
 ];
 
-// Слова по модулям: { module: [ [ru, en, ...доп.значения], ... ] }
+/*
+  Слова по модулям.
+  Формат: [русский, англ1, англ2, англ3, англ4]
+  У КАЖДОГО слова 3–4 значения (переводы/синонимы).
+  Если хочешь добавить своё — просто допиши строку с 3–4 английскими вариантами.
+*/
 const wordModules = {
   "Module 1 — Relationships": [
-    ["отношения","relationship","relationships"],
-    ["дружба","friendship"],
-    ["друг","friend","mate","buddy"],
-    ["подруга","friend","girlfriend"],
-    ["член семьи","family member","relative"],
-    ["родственник","relative","relation"],
-    ["родители","parents"],
-    ["мать","mother","mom","mum"],
-    ["отец","father","dad"],
-    ["брат","brother"],
-    ["сестра","sister"],
-    ["бабушка","grandmother","grandma","granny"],
-    ["дедушка","grandfather","grandpa"],
-    ["тётя","aunt"],
-    ["дядя","uncle"],
-    ["двоюродный брат / сестра","cousin"],
-    ["племянник","nephew"],
-    ["племянница","niece"],
-    ["муж","husband"],
-    ["жена","wife"],
-    ["парень (бойфренд)","boyfriend"],
-    ["девушка (герлфренд)","girlfriend"],
-    ["жених / невеста","fiancé / fiancée"],
-    ["сосед","neighbour","neighbor"],
-    ["одноклассник","classmate"],
-    ["коллега","colleague","co-worker"],
-    ["близкий друг","close friend","best friend"],
-    ["знакомый","acquaintance"],
-    ["свидание","date"],
-    ["отношения на расстоянии","long-distance relationship"],
-    ["поддерживать связь","keep in touch"],
-    ["ладить","get on well","get along"],
-    ["ссориться","argue","quarrel"],
-    ["мириться","make up"],
-    ["доверять","trust"],
-    ["поддерживать","support"],
-    ["уважать","respect"],
-    ["заботиться","care for","look after"],
-    ["влюбляться","fall in love"],
-    ["жениться / выходить замуж","marry","get married"],
-    ["разводиться","divorce","get divorced"],
-    ["встречаться","date","go out"],
-    ["общаться","communicate","socialize"],
-    ["разговаривать по телефону","talk on the phone"],
-    ["переписываться","text each other","message"],
-    ["созваниваться по видео","video call","Skype"],
-    ["социальная сеть","social network","social media"],
-    ["общаться в интернете","chat online"],
-    ["смысл жизни","meaning of life"],
-    ["чувство юмора","sense of humour"],
-    ["характер","character","personality"],
-    ["внешность","appearance","looks"],
-    ["общие интересы","common interests","shared interests"],
-    ["вкус (предпочтение)","taste"],
-    ["поддерживать отношения","maintain relationships"],
-    ["доверие","trust"],
-    ["уважение","respect"],
-    ["любовь","love"],
-    ["забота","care"],
-    ["ссора","argument","quarrel"],
-    ["развод","divorce"],
-    ["свадьба","wedding"],
-    ["помолвка","engagement"],
-    ["родство","kinship","relation"]
+    ["отношения","relationship","relationships","relation","connection"],
+    ["дружба","friendship","friendships","companionship","bond"],
+    ["друг","friend","mate","buddy","pal"],
+    ["подруга","friend","girlfriend","female friend","mate"],
+    ["член семьи","family member","relative","relation","kin"],
+    ["родственник","relative","relation","kin","family member"],
+    ["родители","parents","mother and father","folks","guardians"],
+    ["мать","mother","mom","mum","parent"],
+    ["отец","father","dad","daddy","parent"],
+    ["брат","brother","sibling","bro","kin"],
+    ["сестра","sister","sibling","sis","kin"],
+    ["бабушка","grandmother","grandma","granny","nan"],
+    ["дедушка","grandfather","grandpa","granddad","gramps"],
+    ["тётя","aunt","auntie","aunty","relative"],
+    ["дядя","uncle","relative","kin","family member"],
+    ["двоюродный брат / сестра","cousin","cousin brother","cousin sister","relative"],
+    ["племянник","nephew","relative","kin","family member"],
+    ["племянница","niece","relative","kin","family member"],
+    ["муж","husband","spouse","partner","mate"],
+    ["жена","wife","spouse","partner","mate"],
+    ["парень (бойфренд)","boyfriend","partner","guy","date"],
+    ["девушка (герлфренд)","girlfriend","partner","gal","date"],
+    ["жених / невеста","fiancé / fiancée","betrothed","partner","bride/groom"],
+    ["сосед","neighbour","neighbor","roommate","housemate"],
+    ["одноклассник","classmate","schoolmate","peer","fellow student"],
+    ["коллега","colleague","co-worker","workmate","associate"],
+    ["близкий друг","close friend","best friend","confidant","buddy"],
+    ["знакомый","acquaintance","contact","someone you know","peer"],
+    ["свидание","date","appointment","meeting","rendezvous"],
+    ["отношения на расстоянии","long-distance relationship","remote relationship","LDR","online relationship"],
+    ["поддерживать связь","keep in touch","stay in touch","keep contact","remain in contact"],
+    ["ладить","get on well","get along","get on","hit it off"],
+    ["ссориться","argue","quarrel","fight","disagree"],
+    ["мириться","make up","reconcile","patch things up","bury the hatchet"],
+    ["доверять","trust","rely on","believe in","count on"],
+    ["поддерживать","support","help","back up","encourage"],
+    ["уважать","respect","admire","look up to","honour"],
+    ["заботиться","care for","look after","take care of","mind"],
+    ["влюбляться","fall in love","fall for","become attached","lose your heart"],
+    ["жениться / выходить замуж","marry","get married","tie the knot","wed"],
+    ["разводиться","divorce","get divorced","split up","separate"],
+    ["встречаться","date","go out","see each other","hang out"],
+    ["общаться","communicate","socialize","interact","connect"],
+    ["разговаривать по телефону","talk on the phone","call","phone","have a call"],
+    ["переписываться","text each other","message","chat","write"],
+    ["созваниваться по видео","video call","Skype","FaceTime","video chat"],
+    ["социальная сеть","social network","social media","platform","site"],
+    ["общаться в интернете","chat online","talk online","message online","connect online"],
+    ["смысл жизни","meaning of life","purpose of life","point of life","life purpose"],
+    ["чувство юмора","sense of humour","sense of humor","wit","comic sense"],
+    ["характер","character","personality","temperament","nature"],
+    ["внешность","appearance","looks","appearance","image"],
+    ["общие интересы","common interests","shared interests","similar hobbies","mutual interests"],
+    ["вкус (предпочтение)","taste","preference","liking","style"],
+    ["поддерживать отношения","maintain relationships","keep relationships","sustain relationships","nurture relationships"],
+    ["доверие","trust","confidence","faith","reliance"],
+    ["уважение","respect","esteem","admiration","regard"],
+    ["любовь","love","affection","passion","devotion"],
+    ["забота","care","concern","attention","support"],
+    ["ссора","argument","quarrel","fight","disagreement"],
+    ["развод","divorce","separation","split","breakup"],
+    ["свадьба","wedding","marriage","ceremony","nuptials"],
+    ["помолвка","engagement","betrothal","proposal","agreement"],
+    ["родство","kinship","relation","family tie","blood relation"]
   ]
 };
 
 /* ============ ХЕЛПЕРЫ ============ */
 const $ = id => document.getElementById(id);
-const norm = s => s.toLowerCase().trim().replace(/[—–,;]+/g," ").replace(/\s+/g," ");
 const accepted = s => s.split("/").map(x => x.trim().toLowerCase());
 const parseAnswer = s => s.toLowerCase().trim().split(/[\s,;—–-]+/).filter(Boolean);
 
 /* ============ СОСТОЯНИЕ ============ */
-let mode = "verbs"; // "verbs" | "words"
+let mode = "verbs";
 
 // Верб-квиз
 let order=[], pos=0, score=0, streak=0, wrong=[], checked=false, shuffle=true;
@@ -333,7 +365,6 @@ function resetWords(){
 }
 
 function switchMode(m){
-  // Сбрасываем режим, с которого уходим
   if(mode === "verbs" && m !== "verbs") resetVerbs();
   if(mode === "words" && m !== "words") resetWords();
 
@@ -344,7 +375,6 @@ function switchMode(m){
   $("quizWords").classList.toggle("hidden", m!=="words");
   $("finish").classList.add("hidden");
 
-  // При входе в режим — стартуем заново
   if(m === "verbs") startVerbs();
   if(m === "words") { renderModules(); startWords(); }
 }
@@ -359,44 +389,81 @@ $("tabWords").addEventListener("click", () => {
 });
 
 /* ============ ПОИСК ============ */
+const searchFab = $("searchFab");
+const searchPanel = $("searchPanel");
 const searchInput = $("searchInput");
 const searchResults = $("searchResults");
+let searchFilter = "all";
 
 function buildSearchIndex(){
   const idx = [];
   verbs.forEach((v, i) => {
-    idx.push({ type:"verb", idx:i, ru:v[0], en:[v[1],v[2],v[3]].join(" / ").toLowerCase() });
+    idx.push({ type:"verb", idx:i, ru:v[0], en:[v[1],v[2],v[3]].join(" / ") });
   });
   Object.entries(wordModules).forEach(([mod, list]) => {
     list.forEach((w, i) => {
-      idx.push({ type:"word", mod, idx:i, ru:w[0], en:w.slice(1).join(" / ").toLowerCase() });
+      idx.push({ type:"word", mod, idx:i, ru:w[0], en:w.slice(1).join(" / ") });
     });
   });
   return idx;
 }
 const searchIndex = buildSearchIndex();
 
+function openSearch(){
+  searchPanel.classList.remove("hidden");
+  searchInput.focus();
+}
+function closeSearch(){
+  searchPanel.classList.add("hidden");
+  searchResults.innerHTML = "";
+}
+
+searchFab.addEventListener("click", () => {
+  searchPanel.classList.contains("hidden") ? openSearch() : closeSearch();
+});
+$("searchClose").addEventListener("click", closeSearch);
+
+document.addEventListener("keydown", e => {
+  if(e.key === "Escape") closeSearch();
+  if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k"){
+    e.preventDefault();
+    openSearch();
+  }
+});
+
+document.querySelectorAll("#searchPanel .filters button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll("#searchPanel .filters button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    searchFilter = btn.dataset.filter;
+    doSearch(searchInput.value);
+  });
+});
+
 function doSearch(q){
   q = q.toLowerCase().trim();
-  if(!q){ searchResults.classList.add("hidden"); searchResults.innerHTML=""; return; }
-  const matches = searchIndex.filter(it =>
-    it.ru.toLowerCase().includes(q) || it.en.includes(q)
-  ).slice(0, 20);
+  if(!q){ searchResults.innerHTML = ""; return; }
+  let matches = searchIndex.filter(it =>
+    it.ru.toLowerCase().includes(q) || it.en.toLowerCase().includes(q)
+  );
+  if(searchFilter !== "all"){
+    matches = matches.filter(m => m.type === searchFilter);
+  }
+  matches = matches.slice(0, 30);
 
   if(!matches.length){
     searchResults.innerHTML = `<div class="empty">Ничего не найдено</div>`;
-    searchResults.classList.remove("hidden");
     return;
   }
   searchResults.innerHTML = matches.map(m => {
     const ru = highlight(m.ru, q);
     const en = highlight(m.en, q);
+    const label = m.type === "verb" ? "глагол" : m.mod;
     return `<div class="item" data-type="${m.type}" data-idx="${m.idx}" data-mod="${m.mod||''}">
       <b>${ru}</b> — ${en}
-      <span style="color:var(--muted);font-size:12px"> · ${m.type==="verb"?"глагол":m.mod}</span>
+      <div class="meta-line">${label}</div>
     </div>`;
   }).join("");
-  searchResults.classList.remove("hidden");
 }
 
 function highlight(text, q){
@@ -407,16 +474,15 @@ function highlight(text, q){
 }
 
 searchInput.addEventListener("input", e => doSearch(e.target.value));
-searchInput.addEventListener("focus", e => { if(e.target.value) doSearch(e.target.value); });
-document.addEventListener("click", e => {
-  if(!e.target.closest(".searchWrap")) searchResults.classList.add("hidden");
-});
+
 searchResults.addEventListener("click", e => {
   const item = e.target.closest(".item");
   if(!item) return;
   const type = item.dataset.type;
   const idx = Number(item.dataset.idx);
   const mod = item.dataset.mod;
+  closeSearch();
+
   if(type === "verb"){
     switchMode("verbs");
     order = [idx]; pos = 0; score = 0; streak = 0; wrong = []; checked = false;
@@ -438,8 +504,6 @@ searchResults.addEventListener("click", e => {
     $("finish").classList.add("hidden");
     renderWords();
   }
-  searchResults.classList.add("hidden");
-  searchInput.value = "";
 });
 
 /* ============ КВИЗ ГЛАГОЛОВ ============ */
@@ -526,13 +590,12 @@ function startWords(list=null){
 function renderWords(){
   if(wPos>=wOrder.length){finishWords();return}
   const w = wPool[wOrder[wPos]];
-  // Направление
   if(wDirection === "ru-en"){
-    $("promptW").textContent = w[0]; // русский
+    $("promptW").textContent = w[0];
     $("hintW").textContent = "Введи перевод на английском";
     $("answerW").placeholder = "например: relationship";
   } else {
-    $("promptW").textContent = w.slice(1).join(" / "); // английский
+    $("promptW").textContent = w.slice(1).join(" / ");
     $("hintW").textContent = "Введи перевод на русском";
     $("answerW").placeholder = "например: отношения";
   }
@@ -579,7 +642,7 @@ function finishWords(){
   localStorage.setItem("roundW",String(Number(localStorage.getItem("roundW")||0)+1));
 }
 
-/* ============ ПЕРЕКЛЮЧАТЕЛЬ НАПРАВЛЕНИЯ ============ */
+/* ============ НАПРАВЛЕНИЕ ПЕРЕВОДА ============ */
 $("dirRuEn").addEventListener("click", () => {
   wDirection = "ru-en";
   $("dirRuEn").classList.add("active");
