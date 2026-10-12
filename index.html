@@ -566,4 +566,66 @@ function checkWords(e){
   if(ok){wScore++;wStreak++}else{wStreak=0;wWrong.push(wOrder[wPos])}
   $("scoreW").textContent=wScore;$("streakW").textContent=wStreak;
   $("progressW").style.width=`${(wPos+1)/wOrder.length*100}%`;
-  $("nextBtnW").textContent=wPos===wOrder.length-1?"Завершить раунд":"Следующее
+  $("nextBtnW").textContent=wPos===wOrder.length-1?"Завершить раунд":"Следующее слово →";
+  $("nextRowW").classList.remove("hidden");
+}
+
+function nextWord(){wPos++;if(wPos>=wOrder.length)finishWords();else renderWords()}
+
+function finishWords(){
+  $("quizWords").classList.add("hidden");$("finish").classList.remove("hidden");
+  $("finalScore").textContent=`Результат: ${wScore} из ${wOrder.length} (${Math.round(wScore/wOrder.length*100)}%).`;
+  $("finalText").textContent=wWrong.length?`Ошибок: ${wWrong.length}. Можно пройти их отдельно.`:"Без ошибок — идеально!";
+  localStorage.setItem("roundW",String(Number(localStorage.getItem("roundW")||0)+1));
+}
+
+/* ============ ПЕРЕКЛЮЧАТЕЛЬ НАПРАВЛЕНИЯ ============ */
+$("dirRuEn").addEventListener("click", () => {
+  wDirection = "ru-en";
+  $("dirRuEn").classList.add("active");
+  $("dirEnRu").classList.remove("active");
+  startWords();
+});
+$("dirEnRu").addEventListener("click", () => {
+  wDirection = "en-ru";
+  $("dirEnRu").classList.add("active");
+  $("dirRuEn").classList.remove("active");
+  startWords();
+});
+
+/* ============ ОБРАБОТЧИКИ ============ */
+$("answerForm").addEventListener("submit",checkVerbs);
+$("nextBtn").addEventListener("click",nextVerb);
+$("restartBtn").addEventListener("click",()=>startVerbs());
+$("retryWrongBtn").addEventListener("click",()=>wrong.length?startVerbs(wrong):alert("Пока нет ошибок — отлично!"));
+$("shuffleBtn").addEventListener("click",()=>{shuffle=!shuffle;$("shuffleBtn").classList.toggle("selected",shuffle);$("shuffleBtn").textContent=`🔀 Случайный порядок: ${shuffle?"вкл.":"выкл."}`;saveVerbs()});
+
+$("answerFormW").addEventListener("submit",checkWords);
+$("nextBtnW").addEventListener("click",nextWord);
+$("startWordsBtn").addEventListener("click",()=>startWords());
+$("retryWrongBtnW").addEventListener("click",()=>wWrong.length?startWords(wWrong.map(i=>wPool[i])):alert("Пока нет ошибок — отлично!"));
+
+$("againBtn").addEventListener("click",()=>{ if(mode==="verbs") startVerbs(); else startWords(); });
+$("wrongAgainBtn").addEventListener("click",()=>{
+  if(mode==="verbs") wrong.length?startVerbs(wrong):startVerbs();
+  else wWrong.length?startWords(wWrong.map(i=>wPool[i])):startWords();
+});
+
+/* ============ ТЕМА ============ */
+const themeBtn = $("themeBtn");
+function applyTheme(dark){
+  document.body.classList.toggle("dark", dark);
+  themeBtn.textContent = dark ? "☀️" : "🌙";
+  localStorage.setItem("theme", dark ? "dark" : "light");
+}
+applyTheme(localStorage.getItem("theme") === "dark");
+themeBtn.addEventListener("click", () => {
+  applyTheme(!document.body.classList.contains("dark"));
+});
+
+/* ============ СТАРТ ============ */
+renderModules();
+startVerbs();
+</script>
+</body>
+</html>
