@@ -42,14 +42,52 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .finish{text-align:center}
 .finish h2{font-size:30px}
 .small{font-size:13px;color:var(--muted);text-align:center;margin-top:16px}
-.modules{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 16px}
-.modules label{display:flex;align-items:center;gap:6px;background:#edf0f7;padding:8px 12px;border-radius:12px;cursor:pointer;font-size:14px;font-weight:600}
-.modules input{accent-color:var(--accent)}
 .dirToggle{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
 .dirToggle button{background:#edf0f7;color:var(--ink);border:0;border-radius:12px;padding:8px 12px;font-weight:700;cursor:pointer;font-size:13px}
 .dirToggle button.active{background:var(--accent);color:#fff}
 
-/* Поиск в углу */
+/* ====== МОДУЛИ С ВЫПАДАЮЩИМИ ПОДМОДУЛЯМИ ====== */
+.modules{display:flex;flex-direction:column;gap:10px;margin:8px 0 16px}
+.moduleBlock{position:relative}
+.moduleMain{
+  width:100%;
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  background:#edf0f7;color:var(--ink);
+  border:1px solid transparent;border-radius:12px;
+  padding:12px 16px;font-size:14px;font-weight:700;cursor:pointer;
+  transition:background .15s,border-color .15s;
+}
+.moduleMain:hover{background:#e4e9ff;border-color:var(--accent)}
+.moduleMain .arrow{transition:transform .2s;color:var(--muted);font-size:12px}
+.moduleBlock.open .moduleMain .arrow{transform:rotate(180deg)}
+.moduleMain .count{color:var(--muted);font-size:12px;font-weight:600;margin-left:6px}
+
+.submodules{
+  margin-top:6px;
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:8px;
+  display:none;
+  flex-direction:column;gap:4px;
+  box-shadow:0 8px 20px #25365b0d;
+}
+.moduleBlock.open .submodules{display:flex}
+.submodules label{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 10px;border-radius:8px;cursor:pointer;
+  font-size:13px;font-weight:600;color:var(--ink);
+  transition:background .15s;
+}
+.submodules label:hover{background:#edf0f7}
+.submodules input{accent-color:var(--accent)}
+.submodules .allLine{
+  border-bottom:1px dashed var(--line);
+  padding-bottom:10px;margin-bottom:4px;
+  font-weight:800;
+}
+
+/* Поиск */
 #searchFab{position:fixed;top:16px;left:16px;z-index:1000;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:18px;cursor:pointer;box-shadow:0 4px 12px #0000001a;transition:background .2s,color .2s,border-color .2s}
 #searchFab:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
 #searchPanel{position:fixed;top:70px;left:16px;width:min(420px, calc(100vw - 32px));max-height:70vh;background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:0 20px 50px #00000033;z-index:1001;display:flex;flex-direction:column;overflow:hidden}
@@ -69,14 +107,17 @@ button:disabled{opacity:.45;cursor:not-allowed}
 #searchResults .item .meta-line{color:var(--muted);font-size:12px;margin-top:2px}
 #searchResults .empty{padding:16px;color:var(--muted);font-size:13px;text-align:center}
 
-/* Кнопка темы */
 #themeBtn{position:fixed;top:16px;right:16px;z-index:999;background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:10px 14px;font-size:18px;cursor:pointer;box-shadow:0 4px 12px #0000001a;transition:background .2s,color .2s,border-color .2s}
 #themeBtn:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
 
 /* Тёмная тема */
 body.dark{--bg:#0f1420;--card:#1a2130;--ink:#e8edf7;--muted:#8b96ab;--line:#2a3346;--accent:#5b7cff;--good:#3fbf7f;--bad:#ff6b5e;color-scheme:dark}
 body.dark input[type=text]{background:#121a28;color:var(--ink);border-color:#2a3346}
-body.dark .secondary,body.dark .tabs button,body.dark .modules label,body.dark .dirToggle button{background:#232c3e;color:var(--ink)}
+body.dark .secondary,body.dark .tabs button,body.dark .dirToggle button{background:#232c3e;color:var(--ink)}
+body.dark .moduleMain{background:#232c3e;color:var(--ink)}
+body.dark .moduleMain:hover{background:#2a3a6b;border-color:var(--accent)}
+body.dark .submodules{background:#1a2130;border-color:#2a3346}
+body.dark .submodules label:hover{background:#232c3e}
 body.dark .settings .selected{background:#2a3a6b;color:#b9c8ff}
 body.dark .feedback.good{background:#12261c}
 body.dark .feedback.bad{background:#2a1614}
@@ -91,7 +132,6 @@ body.dark #searchPanel .head input{background:#121a28;color:var(--ink);border-co
 </head>
 <body>
 
-<!-- Поиск (левый верхний угол) -->
 <button id="searchFab" title="Поиск (Ctrl+K)">🔍</button>
 
 <div id="searchPanel" class="hidden">
@@ -107,7 +147,6 @@ body.dark #searchPanel .head input{background:#121a28;color:var(--ink);border-co
   <div id="searchResults"></div>
 </div>
 
-<!-- Тема (правый верхний угол) -->
 <button id="themeBtn" title="Сменить тему">🌙</button>
 
 <main>
@@ -170,7 +209,6 @@ body.dark #searchPanel .head input{background:#121a28;color:var(--ink);border-co
     </div>
   </section>
 
-  <!-- ФИНИШ -->
   <section class="card finish hidden" id="finish">
     <div style="font-size:44px">🏆</div><h2>Раунд завершён!</h2>
     <p id="finalScore"></p><p id="finalText"></p>
@@ -244,12 +282,8 @@ const verbs = [
 ];
 
 /* ============================================================
-   MODULE 1 — RELATIONSHIPS
-   Три подкатегории из учебника (внизу страницы):
-   • Relations
-   • Relationships
-   • Communication
-   Формат: [русский, англ1, англ2, англ3, англ4]
+   MODULE 1 — 3 подмодуля (Relations / Relationships / Communication)
+   Формат слова: [русский, англ1, англ2, англ3, англ4]
    ============================================================ */
 const wordModules = {
   "M1 · Relations": [
@@ -497,8 +531,20 @@ searchResults.addEventListener("click", e => {
     renderVerbs();
   } else {
     switchMode("words");
-    document.querySelectorAll("#moduleList input").forEach(cb => {
-      cb.checked = (cb.value === mod);
+    // Открываем нужный модуль и выбираем только нужный подмодуль
+    document.querySelectorAll(".moduleBlock").forEach(block => {
+      const m = block.dataset.module;
+      const allCb = block.querySelector('input[data-role="all"]');
+      const subs = block.querySelectorAll('input[data-role="sub"]');
+      if(m === mod){
+        block.classList.add("open");
+        allCb.checked = false;
+        subs.forEach(cb => cb.checked = false);
+      } else {
+        block.classList.remove("open");
+        allCb.checked = false;
+        subs.forEach(cb => cb.checked = false);
+      }
     });
     wPool = [ wordModules[mod][idx] ];
     wOrder = [0]; wPos = 0; wScore = 0; wStreak = 0; wWrong = []; wChecked = false;
@@ -509,6 +555,71 @@ searchResults.addEventListener("click", e => {
     renderWords();
   }
 });
+
+/* ============ РЕНДЕР МОДУЛЕЙ С ПОДМОДУЛЯМИ ============ */
+function renderModules(){
+  const box = $("moduleList");
+  const groups = {};
+  Object.keys(wordModules).forEach(m => {
+    const groupName = m.split(" · ")[0]; // "M1"
+    const subName = m.split(" · ")[1] || m;
+    if(!groups[groupName]) groups[groupName] = [];
+    groups[groupName].push({ full: m, sub: subName });
+  });
+
+  box.innerHTML = Object.entries(groups).map(([groupName, subs]) => {
+    const totalWords = subs.reduce((sum, s) => sum + wordModules[s.full].length, 0);
+    const subsHtml = subs.map(s => `
+      <label>
+        <input type="checkbox" data-role="sub" data-module="${s.full}" checked>
+        ${s.sub} <span style="color:var(--muted);font-weight:500">(${wordModules[s.full].length})</span>
+      </label>
+    `).join("");
+    return `
+      <div class="moduleBlock" data-module="${groupName}">
+        <button type="button" class="moduleMain" data-toggle="1">
+          <span>📘 ${groupName} — Module 1: Relationships
+            <span class="count">${totalWords} слов · ${subs.length} подмодуля</span>
+          </span>
+          <span class="arrow">▼</span>
+        </button>
+        <div class="submodules">
+          <label class="allLine">
+            <input type="checkbox" data-role="all" data-module="${groupName}" checked>
+            Выбрать всё
+          </label>
+          ${subsHtml}
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  // Клик по главной кнопке — раскрыть/закрыть
+  box.querySelectorAll(".moduleMain").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const block = btn.closest(".moduleBlock");
+      block.classList.toggle("open");
+    });
+  });
+
+  // Клик по "Выбрать всё" — ставит/снимает все подмодули
+  box.querySelectorAll('input[data-role="all"]').forEach(cb => {
+    cb.addEventListener("change", () => {
+      const block = cb.closest(".moduleBlock");
+      block.querySelectorAll('input[data-role="sub"]').forEach(sub => sub.checked = cb.checked);
+    });
+  });
+
+  // Если сняли хотя бы один подмодуль — снимаем "Выбрать всё"
+  box.querySelectorAll('input[data-role="sub"]').forEach(cb => {
+    cb.addEventListener("change", () => {
+      const block = cb.closest(".moduleBlock");
+      const allCb = block.querySelector('input[data-role="all"]');
+      const subs = block.querySelectorAll('input[data-role="sub"]');
+      allCb.checked = [...subs].every(s => s.checked);
+    });
+  });
+}
 
 /* ============ КВИЗ ГЛАГОЛОВ ============ */
 function startVerbs(list=null){
@@ -563,15 +674,8 @@ function saveVerbs(){
 }
 
 /* ============ КВИЗ СЛОВ ============ */
-function renderModules(){
-  const box = $("moduleList");
-  box.innerHTML = Object.keys(wordModules).map(m =>
-    `<label><input type="checkbox" value="${m}" checked> ${m}</label>`
-  ).join("");
-}
-
 function getSelectedWords(){
-  const checked = [...document.querySelectorAll("#moduleList input:checked")].map(cb => cb.value);
+  const checked = [...document.querySelectorAll('input[data-role="sub"]:checked')].map(cb => cb.dataset.module);
   const pool = [];
   checked.forEach(m => wordModules[m].forEach(w => pool.push(w)));
   return pool;
@@ -579,7 +683,7 @@ function getSelectedWords(){
 
 function startWords(list=null){
   wPool = list ? [...list] : getSelectedWords();
-  if(!wPool.length){ alert("Выбери хотя бы одну категорию"); return; }
+  if(!wPool.length){ alert("Выбери хотя бы один подмодуль"); return; }
   wOrder = wPool.map((_,i)=>i);
   wOrder.sort(()=>Math.random()-.5);
   wPos=0;wScore=0;wStreak=0;wWrong=[];wChecked=false;
