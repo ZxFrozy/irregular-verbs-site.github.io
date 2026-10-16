@@ -22,8 +22,6 @@ main{width:min(100%,720px)}
 .prompt{font-size:clamp(24px,4.5vw,34px);font-weight:800;line-height:1.2;text-align:center;margin:22px 0 8px}
 .hint{text-align:center;color:var(--muted);font-size:14px;margin-bottom:24px}
 label{display:block;font-weight:650;margin-bottom:8px}
-input[type=text]{width:100%;font:inherit;padding:14px 15px;border:1px solid #cbd3e1;border-radius:12px;outline:none;background:var(--card);color:var(--ink);transition:background .2s,border-color .2s}
-input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px #3457d51c}
 button{font:inherit;font-weight:700;border:0;border-radius:12px;padding:13px 16px;cursor:pointer}
 button:disabled{opacity:.45;cursor:not-allowed}
 .primary{background:var(--accent);color:white;width:100%;margin-top:12px}
@@ -42,11 +40,26 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .finish{text-align:center}
 .finish h2{font-size:30px}
 .small{font-size:13px;color:var(--muted);text-align:center;margin-top:16px}
-.dirToggle{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
-.dirToggle button{background:#edf0f7;color:var(--ink);border:0;border-radius:12px;padding:8px 12px;font-weight:700;cursor:pointer;font-size:13px}
-.dirToggle button.active{background:var(--accent);color:#fff}
 
-/* ====== МОДУЛИ С ВЫПАДАЮЩИМИ ПОДМОДУЛЯМИ ====== */
+/* ====== ВЫБОР СЛОЖНОСТИ ====== */
+.difficulty{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.difficulty .lbl{color:var(--muted);font-size:13px;font-weight:700;margin-right:4px}
+.difficulty button{background:#edf0f7;color:var(--ink);border:0;border-radius:10px;padding:7px 12px;font-size:13px;font-weight:700;cursor:pointer;transition:background .15s}
+.difficulty button.active{background:var(--accent);color:#fff}
+
+/* ====== ПОЛЕ ВВОДА С КНОПКАМИ ЯЗЫКА ====== */
+.inputWrap{position:relative;display:flex;gap:8px;align-items:stretch}
+.inputWrap input[type=text]{flex:1;font:inherit;padding:14px 15px;border:1px solid #cbd3e1;border-radius:12px;outline:none;background:var(--card);color:var(--ink);transition:background .2s,border-color .2s}
+.inputWrap input[type=text]:focus{border-color:var(--accent);box-shadow:0 0 0 3px #3457d51c}
+.langBtns{display:flex;flex-direction:column;gap:4px}
+.langBtn{position:relative;background:#edf0f7;border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-size:18px;cursor:pointer;transition:background .15s}
+.langBtn:hover{background:var(--accent);border-color:var(--accent)}
+.langBtn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.langBtn .tip{position:absolute;top:50%;right:calc(100% + 10px);transform:translateY(-50%);background:#182230;color:#fff;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:600;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s;z-index:10;box-shadow:0 4px 12px #00000033}
+.langBtn .tip::after{content:"";position:absolute;left:100%;top:50%;transform:translateY(-50%);border:6px solid transparent;border-left-color:#182230}
+.langBtn:hover .tip{opacity:1}
+
+/* ====== МОДУЛИ С ВЫПАДАЮЩИМИ ПОДМОДУЛЯМИ (наведение) ====== */
 .modules{display:flex;flex-direction:column;gap:10px;margin:8px 0 16px}
 .moduleBlock{position:relative}
 .moduleMain{
@@ -57,7 +70,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
   padding:12px 16px;font-size:14px;font-weight:700;cursor:pointer;
   transition:background .15s,border-color .15s;
 }
-.moduleMain:hover{background:#e4e9ff;border-color:var(--accent)}
+.moduleBlock:hover .moduleMain{background:#e4e9ff;border-color:var(--accent)}
 .moduleMain .arrow{transition:transform .2s;color:var(--muted);font-size:12px}
 .moduleBlock.open .moduleMain .arrow{transform:rotate(180deg)}
 .moduleMain .count{color:var(--muted);font-size:12px;font-weight:600;margin-left:6px}
@@ -112,10 +125,10 @@ button:disabled{opacity:.45;cursor:not-allowed}
 
 /* Тёмная тема */
 body.dark{--bg:#0f1420;--card:#1a2130;--ink:#e8edf7;--muted:#8b96ab;--line:#2a3346;--accent:#5b7cff;--good:#3fbf7f;--bad:#ff6b5e;color-scheme:dark}
-body.dark input[type=text]{background:#121a28;color:var(--ink);border-color:#2a3346}
-body.dark .secondary,body.dark .tabs button,body.dark .dirToggle button{background:#232c3e;color:var(--ink)}
+body.dark .inputWrap input[type=text]{background:#121a28;color:var(--ink);border-color:#2a3346}
+body.dark .secondary,body.dark .tabs button,body.dark .difficulty button{background:#232c3e;color:var(--ink)}
 body.dark .moduleMain{background:#232c3e;color:var(--ink)}
-body.dark .moduleMain:hover{background:#2a3a6b;border-color:var(--accent)}
+body.dark .moduleBlock:hover .moduleMain{background:#2a3a6b;border-color:var(--accent)}
 body.dark .submodules{background:#1a2130;border-color:#2a3346}
 body.dark .submodules label:hover{background:#232c3e}
 body.dark .settings .selected{background:#2a3a6b;color:#b9c8ff}
@@ -128,6 +141,10 @@ body.dark #searchPanel .head button:hover{background:#232c3e}
 body.dark #searchPanel .filters button{background:#232c3e;color:var(--ink)}
 body.dark #searchPanel .filters button.active{background:var(--accent);color:#fff}
 body.dark #searchPanel .head input{background:#121a28;color:var(--ink);border-color:#2a3346}
+body.dark .langBtn{background:#232c3e;color:var(--ink);border-color:#2a3346}
+body.dark .langBtn:hover{background:var(--accent);color:#fff}
+body.dark .langBtn .tip{background:#e8edf7;color:#182230}
+body.dark .langBtn .tip::after{border-left-color:#e8edf7}
 </style>
 </head>
 <body>
@@ -152,7 +169,7 @@ body.dark #searchPanel .head input{background:#121a28;color:var(--ink);border-co
 <main>
   <div class="top">
     <div class="brand">📚 English Trainer</div>
-    <div class="tag">Irregular Verbs + Module 1</div>
+    <div class="tag">Irregular Verbs + Modules</div>
   </div>
 
   <div class="tabs">
@@ -164,6 +181,15 @@ body.dark #searchPanel .head input{background:#121a28;color:var(--ink);border-co
   <section class="card" id="quizVerbs">
     <div class="meta"><span id="roundLabel">Раунд 1</span><span id="count">Вопрос 1 из 56</span></div>
     <div class="progressline"><div class="progress" id="progress"></div></div>
+
+    <div class="difficulty" data-for="verbs">
+      <span class="lbl">Сложность:</span>
+      <button data-size="10">10</button>
+      <button data-size="25">25</button>
+      <button data-size="50">50</button>
+      <button data-size="0" class="active">Все</button>
+    </div>
+
     <div class="prompt" id="prompt">быть, находиться</div>
     <div class="hint">Введи 3 формы на английском: Infinitive · Past Simple · Past Participle</div>
     <form id="answerForm">
@@ -188,16 +214,31 @@ body.dark #searchPanel .head input{background:#121a28;color:var(--ink);border-co
 
     <div class="modules" id="moduleList"></div>
 
-    <div class="dirToggle">
-      <button id="dirRuEn" class="active">🇷🇺 → 🇬🇧 Русский → Английский</button>
-      <button id="dirEnRu">🇬🇧 → 🇷🇺 Английский → Русский</button>
+    <div class="difficulty" data-for="words">
+      <span class="lbl">Сложность:</span>
+      <button data-size="10">10</button>
+      <button data-size="25">25</button>
+      <button data-size="50">50</button>
+      <button data-size="0" class="active">Все</button>
     </div>
 
     <div class="prompt" id="promptW">—</div>
     <div class="hint" id="hintW">Введи перевод</div>
     <form id="answerFormW">
       <label for="answerW">Твой ответ</label>
-      <input type="text" id="answerW" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="например: relationship" required>
+      <div class="inputWrap">
+        <input type="text" id="answerW" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="например: relationship" required>
+        <div class="langBtns">
+          <button type="button" class="langBtn active" id="langRuEn" title="">
+            🇷🇺→🇬🇧
+            <span class="tip">Перевод с русского на английский</span>
+          </button>
+          <button type="button" class="langBtn" id="langEnRu" title="">
+            🇬🇧→🇷🇺
+            <span class="tip">Перевод с английского на русский</span>
+          </button>
+        </div>
+      </div>
       <button class="primary" id="checkBtnW" type="submit">Проверить</button>
     </form>
     <div id="feedbackW" class="feedback hidden" aria-live="polite"></div>
@@ -369,8 +410,8 @@ const verbs = [
 ];
 
 /* ============================================================
-   MODULE 1 — 3 подмодуля (Relations / Relationships / Communication)
-   Формат слова: [русский, англ1, англ2, англ3, англ4]
+   MODULE 1 — 3 подмодуля
+   Формат: [русский, англ1, англ2, англ3, англ4]
    ============================================================ */
 const wordModules = {
   "M1 · Relations": [
@@ -395,7 +436,6 @@ const wordModules = {
     ["семья","family","relatives","household","kin"],
     ["близкий родственник","close relative","immediate family","next of kin","kin"]
   ],
-
   "M1 · Relationships": [
     ["отношения","relationship","relationships","relation","connection"],
     ["дружба","friendship","friendships","companionship","bond"],
@@ -439,7 +479,6 @@ const wordModules = {
     ["помолвка","engagement","betrothal","proposal","agreement"],
     ["родство","kinship","relation","family tie","blood relation"]
   ],
-
   "M1 · Communication": [
     ["общаться","communicate","socialize","interact","connect"],
     ["встречаться","meet up","get together","see each other","hang out"],
@@ -472,10 +511,12 @@ const accepted = s => s.split("/").map(x => x.trim().toLowerCase());
 let mode = "verbs";
 
 let order=[], pos=0, score=0, streak=0, wrong=[], checked=false, shuffle=true;
+let verbsSize = 0; // 0 = все
 
 let wOrder=[], wPos=0, wScore=0, wStreak=0, wWrong=[], wChecked=false;
 let wPool = [];
 let wDirection = "ru-en";
+let wordsSize = 0; // 0 = все
 
 /* ============ ВКЛАДКИ ============ */
 function resetVerbs(){
@@ -525,6 +566,24 @@ $("tabVerbs").addEventListener("click", () => {
 $("tabWords").addEventListener("click", () => {
   if(mode === "words"){ startWords(); return; }
   switchMode("words");
+});
+
+/* ============ СЛОЖНОСТЬ ============ */
+document.querySelectorAll(".difficulty").forEach(box => {
+  box.querySelectorAll("button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      box.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      const size = Number(btn.dataset.size);
+      if(box.dataset.for === "verbs"){
+        verbsSize = size;
+        startVerbs();
+      } else {
+        wordsSize = size;
+        startWords();
+      }
+    });
+  });
 });
 
 /* ============ ПОИСК ============ */
@@ -618,19 +677,13 @@ searchResults.addEventListener("click", e => {
     renderVerbs();
   } else {
     switchMode("words");
-    // Открываем нужный модуль и выбираем только нужный подмодуль
     document.querySelectorAll(".moduleBlock").forEach(block => {
       const m = block.dataset.module;
       const allCb = block.querySelector('input[data-role="all"]');
       const subs = block.querySelectorAll('input[data-role="sub"]');
-      if(m === mod){
-        block.classList.add("open");
+      if(m === mod.split(" · ")[0]){
         allCb.checked = false;
-        subs.forEach(cb => cb.checked = false);
-      } else {
-        block.classList.remove("open");
-        allCb.checked = false;
-        subs.forEach(cb => cb.checked = false);
+        subs.forEach(cb => cb.checked = cb.dataset.module === mod);
       }
     });
     wPool = [ wordModules[mod][idx] ];
@@ -643,12 +696,12 @@ searchResults.addEventListener("click", e => {
   }
 });
 
-/* ============ РЕНДЕР МОДУЛЕЙ С ПОДМОДУЛЯМИ ============ */
+/* ============ РЕНДЕР МОДУЛЕЙ (раскрытие по наведению) ============ */
 function renderModules(){
   const box = $("moduleList");
   const groups = {};
   Object.keys(wordModules).forEach(m => {
-    const groupName = m.split(" · ")[0]; // "M1"
+    const groupName = m.split(" · ")[0];
     const subName = m.split(" · ")[1] || m;
     if(!groups[groupName]) groups[groupName] = [];
     groups[groupName].push({ full: m, sub: subName });
@@ -664,12 +717,12 @@ function renderModules(){
     `).join("");
     return `
       <div class="moduleBlock" data-module="${groupName}">
-        <button type="button" class="moduleMain" data-toggle="1">
+        <div class="moduleMain">
           <span>📘 ${groupName} — Module 1: Relationships
             <span class="count">${totalWords} слов · ${subs.length} подмодуля</span>
           </span>
           <span class="arrow">▼</span>
-        </button>
+        </div>
         <div class="submodules">
           <label class="allLine">
             <input type="checkbox" data-role="all" data-module="${groupName}" checked>
@@ -681,15 +734,13 @@ function renderModules(){
     `;
   }).join("");
 
-  // Клик по главной кнопке — раскрыть/закрыть
-  box.querySelectorAll(".moduleMain").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const block = btn.closest(".moduleBlock");
-      block.classList.toggle("open");
-    });
+  // Раскрытие по НАВЕДЕНИЮ
+  box.querySelectorAll(".moduleBlock").forEach(block => {
+    block.addEventListener("mouseenter", () => block.classList.add("open"));
+    block.addEventListener("mouseleave", () => block.classList.remove("open"));
   });
 
-  // Клик по "Выбрать всё" — ставит/снимает все подмодули
+  // «Выбрать всё» — ставит/снимает все подмодули
   box.querySelectorAll('input[data-role="all"]').forEach(cb => {
     cb.addEventListener("change", () => {
       const block = cb.closest(".moduleBlock");
@@ -697,7 +748,7 @@ function renderModules(){
     });
   });
 
-  // Если сняли хотя бы один подмодуль — снимаем "Выбрать всё"
+  // Если сняли хотя бы один подмодуль — снимаем «Выбрать всё»
   box.querySelectorAll('input[data-role="sub"]').forEach(cb => {
     cb.addEventListener("change", () => {
       const block = cb.closest(".moduleBlock");
@@ -710,7 +761,14 @@ function renderModules(){
 
 /* ============ КВИЗ ГЛАГОЛОВ ============ */
 function startVerbs(list=null){
-  order = list ? [...list] : verbs.map((_,i)=>i);
+  let base;
+  if(list){
+    base = [...list];
+  } else {
+    base = verbs.map((_,i)=>i);
+    if(verbsSize > 0) base = base.slice(0, verbsSize);
+  }
+  order = base;
   if(shuffle && !list) order.sort(()=>Math.random()-.5);
   pos=0;score=0;streak=0;wrong=[];checked=false;
   $("quizVerbs").classList.remove("hidden");
@@ -769,8 +827,15 @@ function getSelectedWords(){
 }
 
 function startWords(list=null){
-  wPool = list ? [...list] : getSelectedWords();
-  if(!wPool.length){ alert("Выбери хотя бы один подмодуль"); return; }
+  let base;
+  if(list){
+    base = [...list];
+  } else {
+    base = getSelectedWords();
+    if(wordsSize > 0) base = base.slice(0, wordsSize);
+  }
+  if(!base.length){ alert("Выбери хотя бы один подмодуль"); return; }
+  wPool = base;
   wOrder = wPool.map((_,i)=>i);
   wOrder.sort(()=>Math.random()-.5);
   wPos=0;wScore=0;wStreak=0;wWrong=[];wChecked=false;
@@ -835,17 +900,17 @@ function finishWords(){
   localStorage.setItem("roundW",String(Number(localStorage.getItem("roundW")||0)+1));
 }
 
-/* ============ НАПРАВЛЕНИЕ ============ */
-$("dirRuEn").addEventListener("click", () => {
+/* ============ ЯЗЫКОВЫЕ КНОПКИ ============ */
+$("langRuEn").addEventListener("click", () => {
   wDirection = "ru-en";
-  $("dirRuEn").classList.add("active");
-  $("dirEnRu").classList.remove("active");
+  $("langRuEn").classList.add("active");
+  $("langEnRu").classList.remove("active");
   startWords();
 });
-$("dirEnRu").addEventListener("click", () => {
+$("langEnRu").addEventListener("click", () => {
   wDirection = "en-ru";
-  $("dirEnRu").classList.add("active");
-  $("dirRuEn").classList.remove("active");
+  $("langEnRu").classList.add("active");
+  $("langRuEn").classList.remove("active");
   startWords();
 });
 
