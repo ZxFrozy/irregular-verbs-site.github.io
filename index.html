@@ -10,6 +10,7 @@
   --bg:#f5f7fb; --card:#fff; --ink:#182230; --muted:#687386; --line:#dce2ec;
   --accent:#3457d5; --good:#147a45; --bad:#b42318;
   --accent-soft:rgba(52, 87, 213, 0.75);
+  --prompt-bg:#f8f9fc;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;min-height:100vh;display:grid;place-items:center;padding:20px;transition:background .2s,color .2s}
@@ -32,6 +33,18 @@ main{width:min(100%,720px)}
 .prompt{font-size:clamp(20px,4vw,28px);font-weight:800;line-height:1.4;text-align:center;margin:22px 0 8px}
 .hint{text-align:center;color:var(--muted);font-size:14px;margin-bottom:24px}
 label{display:block;font-weight:650;margin-bottom:8px}
+
+/* ====== ПОДСКАЗКИ ====== */
+.hint-btn {
+  background: none; border: none; color: var(--accent); font-size: 13px; font-weight: 700; 
+  cursor: pointer; padding: 0; margin-left: 10px; text-decoration: underline; opacity: .8;
+}
+.hint-btn:hover { opacity: 1; }
+.hint-text {
+  display: none; font-size: 13px; color: var(--muted); margin-top: 6px; background: #edf0f7;
+  padding: 8px 12px; border-radius: 8px; border-left: 3px solid var(--accent);
+}
+.hint-text.show { display: block; }
 
 /* ====== ПОЛЕ ВВОДА ====== */
 input[type=text], select{width:100%;font:inherit;padding:14px 15px;border:1px solid #cbd3e1;border-radius:12px;outline:none;background:var(--card);color:var(--ink);transition:background .2s,border-color .2s,box-shadow .2s}
@@ -153,7 +166,12 @@ button:disabled{opacity:.45;cursor:not-allowed}
 }
 
 /* Тёмная тема */
-body.dark{--bg:#0f1420;--card:#1a2130;--ink:#e8edf7;--muted:#8b96ab;--line:#2a3346;--accent:#5b7cff;--good:#3fbf7f;--bad:#ff6b5e;--accent-soft:rgba(91, 124, 255, 0.75);color-scheme:dark}
+body.dark{
+  --bg:#0f1420;--card:#1a2130;--ink:#e8edf7;--muted:#8b96ab;--line:#2a3346;
+  --accent:#5b7cff;--good:#3fbf7f;--bad:#ff6b5e;--accent-soft:rgba(91, 124, 255, 0.75);
+  --prompt-bg:#232c3e; /* Фикс бага с белым фоном */
+  color-scheme:dark;
+}
 body.dark input[type=text], body.dark select{background:#121a28;color:var(--ink);border-color:#2a3346}
 body.dark .secondary,body.dark .tabs button,body.dark .difficulty button{background:#232c3e;color:var(--ink)}
 body.dark .moduleMain{background:#232c3e;color:var(--ink)}
@@ -175,6 +193,7 @@ body.dark .langBtn .tip{background:#e8edf7;color:#182230}
 body.dark .langBtn .tip::after{border-top-color:#e8edf7}
 body.dark .grammarOptions label{background:#232c3e}
 body.dark .grammarOptions label:hover{background:#2a3a6b}
+body.dark .hint-text{background:#232c3e}
 </style>
 </head>
 <body>
@@ -226,10 +245,14 @@ body.dark .grammarOptions label:hover{background:#2a3a6b}
     <div class="prompt" id="prompt">быть, находиться</div>
     <div class="hint" id="hint">Введи 3 формы на английском</div>
     <form id="answerForm">
-      <label for="answer">Твой ответ</label>
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px;">
+        <label for="answer" style="margin-bottom: 0;">Твой ответ</label>
+        <button type="button" class="hint-btn" id="showVerbHint">💡 Подсказка</button>
+      </div>
+      <div class="hint-text" id="verbHintText"></div>
       
       <!-- Обертка с кнопками языка для глаголов -->
-      <div class="inputWrap">
+      <div class="inputWrap" style="margin-top: 8px;">
         <input type="text" id="answer" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="be — was/were — been" required>
         <div class="langBtns">
           <button type="button" class="langBtn active" id="vLangRuEn">RU→EN<span class="tip">Перевод с русского на английский</span></button>
@@ -297,8 +320,13 @@ body.dark .grammarOptions label:hover{background:#2a3a6b}
       <button id="gModeType" style="font-size: 12px; padding: 8px;">Тип</button>
     </div>
 
-    <div class="prompt" id="promptG" style="font-size: 20px; text-align: left; background: #f8f9fc; padding: 15px; border-radius: 10px; border-left: 4px solid var(--accent); margin-bottom: 20px;">
+    <div id="promptG" style="font-size: 20px; text-align: left; background: var(--prompt-bg); padding: 15px; border-radius: 10px; border-left: 4px solid var(--accent); margin-bottom: 15px; color: var(--ink);">
       Предложение загружается...
+    </div>
+
+    <div style="margin-bottom: 20px;">
+      <button type="button" class="hint-btn" id="showGrammarHint" style="margin-left: 0;">💡 Подсказка</button>
+      <div class="hint-text" id="grammarHintText"></div>
     </div>
     
     <form id="answerFormG">
@@ -355,63 +383,40 @@ const wordModules = {
 
 /* ============ ГРАММАТИКА ============ */
 const baseSentences = [
-  { s: "{sub} works at the hospital.", t: "Present Simple", v: "Active", ty: "Statement", subs: ["She", "He", "My brother", "Tom"] },
-  { s: "Do they live in London?", t: "Present Simple", v: "Active", ty: "Question", subs: ["they", "you", "your parents"] },
-  { s: "The letter is written by {obj}.", t: "Present Simple", v: "Passive", ty: "Statement", objs: ["Tom", "the manager", "my friend"] },
-  { s: "{sub} doesn't like coffee.", t: "Present Simple", v: "Active", ty: "Negative", subs: ["He", "She", "My dad"] },
-  { s: "Is the car washed every week?", t: "Present Simple", v: "Passive", ty: "Question" },
-  { s: "Water boils at 100 degrees.", t: "Present Simple", v: "Active", ty: "Statement", subs: ["Water", "Milk", "Oil"] },
-  { s: "The sun rises in the east.", t: "Present Simple", v: "Active", ty: "Statement", subs: ["The sun", "The moon", "The star"] },
-  { s: "Do you speak English?", t: "Present Simple", v: "Active", ty: "Question", subs: ["you", "they", "we"] },
-  { s: "The documents are kept in a safe.", t: "Present Simple", v: "Passive", ty: "Statement" },
-  { s: "{sub} am reading a book right now.", t: "Present Continuous", v: "Active", ty: "Statement", subs: ["I"] },
-  { s: "The house is being painted.", t: "Present Continuous", v: "Passive", ty: "Statement" },
-  { s: "Is she cooking dinner?", t: "Present Continuous", v: "Active", ty: "Question", subs: ["she", "he", "your mom"] },
-  { s: "They aren't playing football.", t: "Present Continuous", v: "Active", ty: "Negative", subs: ["They", "We", "The boys"] },
-  { s: "The documents are being checked.", t: "Present Continuous", v: "Passive", ty: "Statement" },
-  { s: "Why are you crying?", t: "Present Continuous", v: "Active", ty: "Question", subs: ["you", "they", "the kids"] },
-  { s: "It is raining heavily.", t: "Present Continuous", v: "Active", ty: "Statement", subs: ["It"] },
-  { s: "I am not working today.", t: "Present Continuous", v: "Active", ty: "Negative", subs: ["I"] },
-  { s: "I have finished my homework.", t: "Present Perfect", v: "Active", ty: "Statement" },
-  { s: "The window has been broken.", t: "Present Perfect", v: "Passive", ty: "Statement" },
-  { s: "Has he seen this movie?", t: "Present Perfect", v: "Active", ty: "Question", subs: ["he", "she", "your brother"] },
-  { s: "We haven't eaten yet.", t: "Present Perfect", v: "Active", ty: "Negative", subs: ["We", "They", "I"] },
-  { s: "Have the letters been sent?", t: "Present Perfect", v: "Passive", ty: "Question" },
-  { s: "She has lived here for 5 years.", t: "Present Perfect", v: "Active", ty: "Statement", subs: ["She", "He", "My friend"] },
-  { s: "They have already left.", t: "Present Perfect", v: "Active", ty: "Statement", subs: ["They", "We", "The guests"] },
-  { s: "I have been studying for 3 hours.", t: "Present Perfect Continuous", v: "Active", ty: "Statement" },
-  { s: "It has been raining all day.", t: "Present Perfect Continuous", v: "Active", ty: "Statement" },
-  { s: "How long have you been waiting?", t: "Present Perfect Continuous", v: "Active", ty: "Question", subs: ["you", "they", "she"] },
-  { s: "He hasn't been working here long.", t: "Present Perfect Continuous", v: "Active", ty: "Negative", subs: ["He", "She", "Tom"] },
-  { s: "They have been playing tennis since morning.", t: "Present Perfect Continuous", v: "Active", ty: "Statement", subs: ["They", "We", "The children"] },
-  { s: "They visited Paris last year.", t: "Past Simple", v: "Active", ty: "Statement", subs: ["They", "We", "My parents"] },
-  { s: "The cake was made by my mom.", t: "Past Simple", v: "Passive", ty: "Statement" },
-  { s: "Did you call him yesterday?", t: "Past Simple", v: "Active", ty: "Question", subs: ["you", "she", "he"] },
-  { s: "I didn't see her at the party.", t: "Past Simple", v: "Active", ty: "Negative", subs: ["I", "We", "They"] },
-  { s: "Was the thief caught by the police?", t: "Past Simple", v: "Passive", ty: "Question" },
-  { s: "She bought a new car.", t: "Past Simple", v: "Active", ty: "Statement", subs: ["She", "He", "My sister"] },
-  { s: "He broke the window yesterday.", t: "Past Simple", v: "Active", ty: "Statement", subs: ["He", "Tom", "The boy"] },
-  { s: "I was sleeping when you called.", t: "Past Continuous", v: "Active", ty: "Statement", subs: ["I"] },
-  { s: "The bridge was being built in 2005.", t: "Past Continuous", v: "Passive", ty: "Statement" },
-  { s: "What were you doing at 8 pm?", t: "Past Continuous", v: "Active", ty: "Question", subs: ["you", "they", "she"] },
-  { s: "They weren't listening to me.", t: "Past Continuous", v: "Active", ty: "Negative", subs: ["They", "We", "The students"] },
-  { s: "The room was being cleaned.", t: "Past Continuous", v: "Passive", ty: "Statement" },
-  { s: "She had left before I arrived.", t: "Past Perfect", v: "Active", ty: "Statement", subs: ["She", "He", "They"] },
-  { s: "The work had been done by 5 o'clock.", t: "Past Perfect", v: "Passive", ty: "Statement" },
-  { s: "Had you met him before?", t: "Past Perfect", v: "Active", ty: "Question", subs: ["you", "she", "they"] },
-  { s: "I hadn't seen the movie yet.", t: "Past Perfect", v: "Active", ty: "Negative", subs: ["I", "We", "He"] },
-  { s: "Had the letters been written?", t: "Past Perfect", v: "Passive", ty: "Question" },
-  { s: "I will call you tomorrow.", t: "Future Simple", v: "Active", ty: "Statement" },
-  { s: "The report will be finished soon.", t: "Future Simple", v: "Passive", ty: "Statement" },
-  { s: "Will they come to the party?", t: "Future Simple", v: "Active", ty: "Question", subs: ["they", "you", "he"] },
-  { s: "He won't help us.", t: "Future Simple", v: "Active", ty: "Negative", subs: ["He", "She", "They"] },
-  { s: "Will the money be returned?", t: "Future Simple", v: "Passive", ty: "Question" },
-  { s: "I will be working at 10 am.", t: "Future Continuous", v: "Active", ty: "Statement" },
-  { s: "Will you be using the car tonight?", t: "Future Continuous", v: "Active", ty: "Question", subs: ["you", "they", "she"] },
-  { s: "They won't be sleeping at this time.", t: "Future Continuous", v: "Active", ty: "Negative", subs: ["They", "We", "The kids"] },
-  { s: "I will have finished by 6 pm.", t: "Future Perfect", v: "Active", ty: "Statement" },
-  { s: "The project will have been completed.", t: "Future Perfect", v: "Passive", ty: "Statement" },
-  { s: "Will you have read the book by Friday?", t: "Future Perfect", v: "Active", ty: "Question", subs: ["you", "he", "she"] }
+  { s: "{sub} works at the hospital.", t: "Present Simple", v: "Active", ty: "Statement", subs: ["She", "He", "My brother", "Tom"], hint: "Регулярное действие (каждый день). Обрати внимание на окончание -s у глагола." },
+  { s: "Do they live in London?", t: "Present Simple", v: "Active", ty: "Question", subs: ["they", "you", "your parents"], hint: "Вопрос с вспомогательным глаголом Do." },
+  { s: "The letter is written by {obj}.", t: "Present Simple", v: "Passive", ty: "Statement", objs: ["Tom", "the manager", "my friend"], hint: "Пассивный залог: действие совершается над подлежащим (is + V3)." },
+  { s: "{sub} doesn't like coffee.", t: "Present Simple", v: "Active", ty: "Negative", subs: ["He", "She", "My dad"], hint: "Отрицание с doesn't (для he/she/it)." },
+  { s: "Is the car washed every week?", t: "Present Simple", v: "Passive", ty: "Question", hint: "Вопрос в пассивном залоге (Is + V3)." },
+  { s: "Water boils at 100 degrees.", t: "Present Simple", v: "Active", ty: "Statement", subs: ["Water", "Milk", "Oil"], hint: "Закон природы, неоспоримый факт." },
+  
+  { s: "{sub} am reading a book right now.", t: "Present Continuous", v: "Active", ty: "Statement", subs: ["I"], hint: "Действие происходит прямо сейчас (right now)." },
+  { s: "The house is being painted.", t: "Present Continuous", v: "Passive", ty: "Statement", hint: "Процесс в пассивном залоге (is being + V3)." },
+  { s: "Is she cooking dinner?", t: "Present Continuous", v: "Active", ty: "Question", subs: ["she", "he", "your mom"], hint: "Вопрос о действии в данный момент." },
+  { s: "They aren't playing football.", t: "Present Continuous", v: "Active", ty: "Negative", subs: ["They", "We", "The boys"], hint: "Отрицание в процессе (aren't + V-ing)." },
+  { s: "The documents are being checked.", t: "Present Continuous", v: "Passive", ty: "Statement", hint: "Пассивный процесс (are being + V3)." },
+
+  { s: "I have finished my homework.", t: "Present Perfect", v: "Active", ty: "Statement", hint: "Результат к настоящему моменту (have/has + V3)." },
+  { s: "The window has been broken.", t: "Present Perfect", v: "Passive", ty: "Statement", hint: "Пассивный перфект (has been + V3)." },
+  { s: "Has he seen this movie?", t: "Present Perfect", v: "Active", ty: "Question", subs: ["he", "she", "your brother"], hint: "Вопрос о жизненном опыте." },
+  { s: "We haven't eaten yet.", t: "Present Perfect", v: "Active", ty: "Negative", subs: ["We", "They", "I"], hint: "Действие ещё не завершено (yet)." },
+
+  { s: "They visited Paris last year.", t: "Past Simple", v: "Active", ty: "Statement", subs: ["They", "We", "My parents"], hint: "Завершённое действие в прошлом (last year)." },
+  { s: "The cake was made by my mom.", t: "Past Simple", v: "Passive", ty: "Statement", hint: "Пассивный залог в прошлом (was + V3)." },
+  { s: "Did you call him yesterday?", t: "Past Simple", v: "Active", ty: "Question", subs: ["you", "she", "he"], hint: "Вопрос о прошлом (Did + V1)." },
+  { s: "I didn't see her at the party.", t: "Past Simple", v: "Active", ty: "Negative", subs: ["I", "We", "They"], hint: "Отрицание в прошлом (didn't + V1)." },
+
+  { s: "I was sleeping when you called.", t: "Past Continuous", v: "Active", ty: "Statement", subs: ["I"], hint: "Процесс в прошлом, прерванный другим действием." },
+  { s: "The bridge was being built in 2005.", t: "Past Continuous", v: "Passive", ty: "Statement", hint: "Пассивный процесс в прошлом (was being + V3)." },
+
+  { s: "She had left before I arrived.", t: "Past Perfect", v: "Active", ty: "Statement", subs: ["She", "He", "They"], hint: "Действие, завершившееся ДО другого прошлого действия (had + V3)." },
+  { s: "The work had been done by 5 o'clock.", t: "Past Perfect", v: "Passive", ty: "Statement", hint: "Пассивный перфект в прошлом (had been + V3)." },
+
+  { s: "I will call you tomorrow.", t: "Future Simple", v: "Active", ty: "Statement", hint: "Спонтанное решение или обещание (will + V1)." },
+  { s: "The report will be finished soon.", t: "Future Simple", v: "Passive", ty: "Statement", hint: "Пассивный залог в будущем (will be + V3)." },
+  { s: "Will they come to the party?", t: "Future Simple", v: "Active", ty: "Question", subs: ["they", "you", "he"], hint: "Вопрос о будущем." },
+  
+  { s: "I will have finished by 6 pm.", t: "Future Perfect", v: "Active", ty: "Statement", hint: "Действие завершится К определённому моменту в будущем (will have + V3)." }
 ];
 
 const grammarSentences = [];
@@ -453,6 +458,7 @@ function resetVerbs(){
   $("progress").style.width = "0%"; $("feedback").className = "feedback hidden";
   $("nextRow").classList.add("hidden"); $("answer").value = "";
   $("answer").disabled = false; $("checkBtn").disabled = false;
+  $("verbHintText").classList.remove("show");
 }
 function resetWords(){
   wOrder=[]; wPos=0; wScore=0; wStreak=0; wWrong=[]; wChecked=false; wPool=[];
@@ -468,6 +474,7 @@ function resetGrammar(){
   $("progressG").style.width = "0%"; $("feedbackG").className = "feedback hidden";
   $("nextRowG").classList.add("hidden");
   $("checkBtnG").disabled = false;
+  $("grammarHintText").classList.remove("show");
 }
 
 function switchMode(m){
@@ -492,6 +499,35 @@ function switchMode(m){
 $("tabVerbs").addEventListener("click", () => { if(mode !== "verbs") switchMode("verbs"); });
 $("tabWords").addEventListener("click", () => { if(mode !== "words") switchMode("words"); });
 $("tabGrammar").addEventListener("click", () => { if(mode !== "grammar") switchMode("grammar"); });
+
+/* ============ ПОДСКАЗКИ ============ */
+// Для глаголов
+$("showVerbHint").addEventListener("click", () => {
+  const v = allVerbs[order[pos]];
+  const hintBox = $("verbHintText");
+  if (hintBox.classList.contains("show")) {
+    hintBox.classList.remove("show");
+  } else {
+    if (vDirection === "ru-en") {
+      hintBox.textContent = `Первая буква: ${v[1][0].toUpperCase()}... / ${v[2][0].toUpperCase()}... / ${v[3][0].toUpperCase()}...`;
+    } else {
+      hintBox.textContent = `Начинается на: "${v[0].substring(0, 3)}..."`;
+    }
+    hintBox.classList.add("show");
+  }
+});
+
+// Для грамматики
+$("showGrammarHint").addEventListener("click", () => {
+  const item = grammarSentences[gOrder[gPos]];
+  const hintBox = $("grammarHintText");
+  if (hintBox.classList.contains("show")) {
+    hintBox.classList.remove("show");
+  } else {
+    hintBox.textContent = item.hint || "Обрати внимание на вспомогательные глаголы и окончания.";
+    hintBox.classList.add("show");
+  }
+});
 
 /* ============ ГРАММАТИКА: РЕЖИМЫ ============ */
 $("gModeTense").addEventListener("click", () => { gMode = "tense"; switchGrammarMode(); });
@@ -740,6 +776,7 @@ function renderVerbs(){
   if(pos>=order.length){finishVerbs();return}
   const v=allVerbs[order[pos]];
   $("answer").disabled = false; $("checkBtn").disabled = false;
+  $("verbHintText").classList.remove("show");
   
   if (vDirection === "ru-en") {
     $("prompt").textContent = v[0];
@@ -768,12 +805,10 @@ function checkVerbs(e){
   let display = "";
 
   if (vDirection === "ru-en") {
-    // Проверяем 3 формы
     const p = user.split(/[\s,;—–-]+/).filter(Boolean);
     ok = p.length === 3 && p.every((x, i) => accepted(v[i+1]).some(a => a === x));
     display = v.slice(1).join(" — ");
   } else {
-    // Проверяем русский перевод (может быть несколько вариантов через запятую)
     const correct = v[0].toLowerCase().split(/[,/]/).map(s => s.trim());
     ok = correct.some(c => c === user);
     display = v[0];
@@ -897,6 +932,8 @@ function renderGrammar() {
   $("countG").textContent = `Вопрос ${gPos+1} из ${gOrder.length}`;
   $("roundLabelG").textContent = `Раунд ${Number(localStorage.getItem("roundG")||0)+1}`;
   $("progressG").style.width = `${gPos/gOrder.length*100}%`;
+  
+  $("grammarHintText").classList.remove("show");
   
   document.querySelectorAll('#answerFormG input[type="radio"]').forEach(r => r.checked = false);
   document.querySelectorAll('#answerFormG input[type="radio"]').forEach(r => r.disabled = false);
