@@ -89,11 +89,29 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .finish h2{font-size:30px}
 .small{font-size:13px;color:var(--muted);text-align:center;margin-top:16px}
 
-/* ====== ВЫБОР СЛОЖНОСТИ ====== */
+/* ====== ВЫБОР СЛОЖНОСТИ И БУКВ ====== */
 .difficulty{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
 .difficulty .lbl{color:var(--muted);font-size:13px;font-weight:700;margin-right:4px}
 .difficulty button{background:#edf0f7;color:var(--ink);border:0;border-radius:10px;padding:7px 12px;font-size:13px;font-weight:700;cursor:pointer;transition:background .15s}
 .difficulty button.active{background:var(--accent);color:#fff}
+
+.letters-container {
+  margin-bottom: 16px; padding: 12px; background: #edf0f7; border-radius: 12px;
+}
+.letters-container .lbl {
+  color: var(--muted); font-size: 13px; font-weight: 700; display: block; margin-bottom: 8px;
+}
+.letters-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(32px, 1fr)); gap: 6px;
+}
+.letter-btn {
+  background: var(--card); border: 1px solid var(--line); border-radius: 6px;
+  font-size: 13px; font-weight: 700; padding: 6px 0; cursor: pointer;
+  color: var(--ink); transition: all .15s; text-align: center;
+}
+.letter-btn:hover { border-color: var(--accent); }
+.letter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.letter-btn.disabled { opacity: 0.3; cursor: not-allowed; }
 
 /* ====== МОДУЛИ ====== */
 .modules{display:flex;flex-direction:column;gap:10px;margin:8px 0 16px}
@@ -163,6 +181,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
   #searchFab, #themeBtn { top: 12px; padding: 12px; }
   #searchFab { left: 12px; } #themeBtn { right: 12px; }
   #searchPanel { top: 60px; left: 12px; width: calc(100vw - 24px); }
+  .letters-grid { grid-template-columns: repeat(auto-fill, minmax(28px, 1fr)); }
 }
 
 /* Тёмная тема */
@@ -194,6 +213,9 @@ body.dark .langBtn .tip::after{border-top-color:#e8edf7}
 body.dark .grammarOptions label{background:#232c3e}
 body.dark .grammarOptions label:hover{background:#2a3a6b}
 body.dark .hint-text{background:#232c3e}
+body.dark .letters-container{background:#232c3e}
+body.dark .letter-btn{background:#1a2130;border-color:#2a3346}
+body.dark .letter-btn.active{background:var(--accent);color:#fff}
 </style>
 </head>
 <body>
@@ -234,6 +256,12 @@ body.dark .hint-text{background:#232c3e}
 
     <div class="modules" id="verbGroupList"></div>
 
+    <!-- Фильтр по буквам -->
+    <div class="letters-container" id="lettersContainer">
+      <span class="lbl">Буквы (какие учить):</span>
+      <div class="letters-grid" id="lettersGrid"></div>
+    </div>
+
     <div class="difficulty" data-for="verbs">
       <span class="lbl">Сложность:</span>
       <button data-size="10">10</button>
@@ -251,7 +279,6 @@ body.dark .hint-text{background:#232c3e}
       </div>
       <div class="hint-text" id="verbHintText"></div>
       
-      <!-- Обертка с кнопками языка для глаголов -->
       <div class="inputWrap" style="margin-top: 8px;">
         <input type="text" id="answer" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="be — was/were — been" required>
         <div class="langBtns">
@@ -445,6 +472,10 @@ let mode = "verbs";
 let order=[], pos=0, score=0, streak=0, wrong=[], checked=false, shuffle=true;
 let verbsSize = 0, vDirection = "ru-en";
 
+// Состояние для фильтра по буквам
+const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+let selectedLetters = new Set(alphabet); // По умолчанию все выбраны
+
 let wOrder=[], wPos=0, wScore=0, wStreak=0, wWrong=[], wChecked=false;
 let wPool = [], wDirection = "ru-en", wordsSize = 0;
 
@@ -501,7 +532,6 @@ $("tabWords").addEventListener("click", () => { if(mode !== "words") switchMode(
 $("tabGrammar").addEventListener("click", () => { if(mode !== "grammar") switchMode("grammar"); });
 
 /* ============ ПОДСКАЗКИ ============ */
-// Для глаголов
 $("showVerbHint").addEventListener("click", () => {
   const v = allVerbs[order[pos]];
   const hintBox = $("verbHintText");
@@ -517,7 +547,6 @@ $("showVerbHint").addEventListener("click", () => {
   }
 });
 
-// Для грамматики
 $("showGrammarHint").addEventListener("click", () => {
   const item = grammarSentences[gOrder[gPos]];
   const hintBox = $("grammarHintText");
@@ -563,6 +592,31 @@ document.querySelectorAll(".difficulty").forEach(box => {
     });
   });
 });
+
+/* ============ ФИЛЬТР ПО БУКВАМ ============ */
+function renderLetterFilters() {
+  const grid = $("lettersGrid");
+  grid.innerHTML = alphabet.map(letter => {
+    // Проверяем, есть ли вообще глаголы на эту букву в общем пуле
+    const hasVerbs = allVerbs.some(v => v[1].toUpperCase().startsWith(letter));
+    return `<button class="letter-btn ${selectedLetters.has(letter) ? 'active' : ''} ${!hasVerbs ? 'disabled' : ''}" 
+      data-letter="${letter}" ${!hasVerbs ? 'disabled' : ''}>${letter}</button>`;
+  }).join("");
+
+  grid.querySelectorAll(".letter-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const l = btn.dataset.letter;
+      if (selectedLetters.has(l)) {
+        selectedLetters.delete(l);
+        btn.classList.remove("active");
+      } else {
+        selectedLetters.add(l);
+        btn.classList.add("active");
+      }
+      startVerbs(); // Перезапуск при смене буквы
+    });
+  });
+}
 
 /* ============ ПОИСК ============ */
 const searchFab = $("searchFab");
@@ -750,9 +804,17 @@ function renderModules(){
 /* ============ КВИЗ ГЛАГОЛОВ ============ */
 function getSelectedVerbs() {
   const checked = [...document.querySelectorAll('input[data-role="verb-group"]:checked')].map(cb => cb.value);
-  const pool = [];
+  let pool = [];
   if (checked.includes("verbs-basic")) pool.push(...verbsBasic.map((v, i) => i));
   if (checked.includes("verbs-extended")) pool.push(...verbsExtended.map((v, i) => i + verbsBasic.length));
+  
+  // Фильтрация по буквам
+  pool = pool.filter(idx => {
+    const v = allVerbs[idx];
+    const firstLetter = v[1][0].toUpperCase();
+    return selectedLetters.has(firstLetter);
+  });
+
   return pool;
 }
 
@@ -763,7 +825,12 @@ function startVerbs(list=null){
     base = getSelectedVerbs();
     if(verbsSize > 0) base = base.slice(0, verbsSize);
   }
-  if(base.length === 0) { $("prompt").textContent = "Выбери хотя бы одну группу"; $("answer").disabled = true; $("checkBtn").disabled = true; return; }
+  if(base.length === 0) { 
+    $("prompt").textContent = "Нет глаголов с выбранными буквами / группами"; 
+    $("answer").disabled = true; $("checkBtn").disabled = true; 
+    $("count").textContent = "Вопрос 0 из 0"; $("progress").style.width = "0%";
+    return; 
+  }
   order = base;
   if(shuffle && !list) order.sort(()=>Math.random()-.5);
   pos=0;score=0;streak=0;wrong=[];checked=false;
@@ -1034,6 +1101,7 @@ themeBtn.addEventListener("click", () => applyTheme(!document.body.classList.con
 renderVerbGroups();
 renderModules();
 renderGrammarOptions();
+renderLetterFilters(); // Рендерим буквы
 switchGrammarMode();
 startVerbs();
 </script>
